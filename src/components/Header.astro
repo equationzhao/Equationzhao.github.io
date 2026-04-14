@@ -1,6 +1,6 @@
 ---
 import { Seo } from "astro-seo-meta";
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 ---
@@ -16,12 +16,12 @@ import HeaderLink from './HeaderLink.astro';
 		<h2><a href="/" rel = prefetch-intent>{SITE_TITLE}</a>
 			<em><br> &nbsp;好的方程列出来有<br>&nbsp;诗の美感</em>
 		</h2>
-		<ViewTransitions />
+		<ClientRouter />
 		<div class="internal-links">
 			<HeaderLink href="/" rel = prefetch-intent>Home</HeaderLink>
 			<HeaderLink href="/blog" rel = prefetch-intent>Posts</HeaderLink>
 			<HeaderLink href="/about" rel = prefetch-intent>About</HeaderLink>
-			<HeaderLink href=""https://rxresu.me/equationzhao/equationzhao" rel = prefetch-intent target={'_blank'}>Hire ME!</HeaderLink>
+			<HeaderLink href="https://rxresu.me/equationzhao/equationzhao" rel = prefetch-intent target={'_blank'}>Hire ME!</HeaderLink>
 		</div>
 		<div class="social-links">
 			<a href="https://github.com/Equationzhao" target="_blank" rel = prefetch-intent>

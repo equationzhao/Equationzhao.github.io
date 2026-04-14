@@ -17,9 +17,8 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 		<BaseHead title={title} description={description} />
 		<style>
 			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
+				width: min(1080px, calc(100% - 2.5rem));
+				margin: 0 auto;
 			}
 			.hero-image {
 				width: 100%;
@@ -27,21 +26,23 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				border-radius: 12px;
+				border-radius: var(--radius-lg);
 				box-shadow: var(--box-shadow);
 			}
 			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+				width: min(760px, calc(100% - 2rem));
+				margin: 1.2rem auto 0;
+				padding: 1.4rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--surface-shadow);
 			}
 			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
+				margin-bottom: 1rem;
+				padding: 0.5rem 0 1rem;
 				text-align: center;
-				line-height: 1;
+				line-height: 1.2;
 			}
 			.title h1 {
 				margin: 0 0 0.5em 0;
@@ -52,6 +53,15 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 			}
 			.last-updated-on {
 				font-style: italic;
+			}
+			@media (max-width: 720px) {
+				main {
+					width: min(1080px, calc(100% - 1.5rem));
+				}
+				.prose {
+					width: calc(100% - 1rem);
+					padding: 1rem;
+				}
 			}
 		</style>
 	</head>

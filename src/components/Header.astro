@@ -13,8 +13,9 @@ import HeaderLink from './HeaderLink.astro';
 		icon="/favicon.svg"
 	/>
 	<nav>
-		<h2><a href="/" rel = prefetch-intent>{SITE_TITLE}</a>
-			<em><br> &nbsp;好的方程列出来有<br>&nbsp;诗の美感</em>
+		<h2 class="brand">
+			<a href="/" rel = prefetch-intent>{SITE_TITLE}</a>
+			<em>好的方程列出来有诗の美感</em>
 		</h2>
 		<ClientRouter />
 		<div class="internal-links">
@@ -37,40 +38,87 @@ import HeaderLink from './HeaderLink.astro';
 </header>
 <style>
 	header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
 		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		padding: 0 1.2rem;
+		background: rgba(var(--surface-1), 0.78);
+		border-bottom: 1px solid rgba(var(--border), 0.28);
+		backdrop-filter: blur(12px);
+		box-shadow: 0 8px 24px rgba(2, 5, 14, 0.35);
 	}
-	h2 {
+	.brand {
 		margin: 0;
-		font-size: 1em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		font-size: 1rem;
 	}
-
-	h2 a,
-	h2 a.active {
+	.brand a,
+	.brand a.active {
 		text-decoration: none;
+		color: rgb(237, 243, 255);
+		letter-spacing: 0.02em;
+	}
+	.brand em {
+		font-size: 0.75rem;
+		font-style: normal;
+		color: rgba(var(--gray), 0.9);
 	}
 	nav {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 0.8rem;
+		min-height: 72px;
+	}
+	.internal-links {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.2rem;
+		border-radius: 999px;
+		background: rgba(var(--surface-0), 0.56);
+		border: 1px solid rgba(var(--border), 0.2);
 	}
 	nav a {
-		padding: 1em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
+		padding: 0.55rem 0.9rem;
+		color: rgb(var(--gray-dark));
+		border-radius: 999px;
 		text-decoration: none;
+		transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 	}
 	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
+		background: rgba(var(--accent-strong), 0.22);
+		color: rgb(237, 244, 255);
+		box-shadow: 0 0 0 1px rgba(var(--accent), 0.45) inset, 0 0 14px rgba(var(--accent), 0.24);
 	}
 	.social-links,
 	.social-links a {
 		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
+	.social-links a {
+		color: rgb(var(--gray));
+	}
+	.social-links a:hover {
+		color: rgb(var(--accent));
 	}
 	@media (max-width: 720px) {
+		header {
+			padding: 0 0.6rem;
+		}
+		.brand em {
+			display: none;
+		}
+		.internal-links {
+			gap: 0.2rem;
+		}
+		nav a {
+			padding: 0.45rem 0.6rem;
+		}
 		.social-links {
 			display: none;
 		}

@@ -11,58 +11,97 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 <head>
 	<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	<style>
-		main {
-			width: 55%;
-			max-width: 100%;
+		.about-shell {
+			display: grid;
+			grid-template-columns: 1.2fr 1fr;
+			gap: 1.2rem;
 		}
-        body {
-            background-image: url("https://bingw.jasonzeng.dev?resolution=UHD");
-            background-size: cover;
-        }
-    </style>
+		.panel {
+			padding: 1.4rem;
+			background: rgba(var(--surface-1), 0.72);
+			border: 1px solid rgba(var(--border), 0.28);
+			border-radius: var(--radius-lg);
+			box-shadow: var(--surface-shadow);
+		}
+		.avatar {
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			border: 2px solid rgba(var(--accent), 0.5);
+		}
+		.meta-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.55rem;
+		}
+		.meta-list li {
+			padding: 0.35rem 0.7rem;
+			border-radius: 999px;
+			border: 1px solid rgba(var(--border), 0.26);
+			background: rgba(var(--surface-0), 0.6);
+			font-size: 0.92rem;
+		}
+		.stat-images img {
+			margin-bottom: 0.7rem;
+			border-radius: var(--radius-md);
+		}
+		.powered {
+			text-align: right;
+			margin-top: 1rem;
+		}
+		@media (max-width: 900px) {
+			.about-shell {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
 </head>
 
 <body>
 	<Header title={SITE_TITLE} />
 	<main>
-		<div style="position: relative;">
-			<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.5); filter: blur(1px); border-radius: 10px;"></div>
-			<main style="position: relative; z-index: 1;">
-		<h1>My blog</h1>
-		<p>
-			<img src="https://avatars.githubusercontent.com/u/75521101?v=4" height="100px" width="100px"> <br>
-			欢迎来到 Eq 的个人网站<br>
-		<img src="https://wakatime.com/badge/user/90d4bbc2-a779-4bb1-a2a2-572e90fc4e29.svg" alt="Eq"> <br>
-		</p>
+		<section class="about-shell">
+			<div class="panel">
+				<h1>My blog</h1>
+				<p>
+					<img class="avatar" src="https://avatars.githubusercontent.com/u/75521101?v=4" alt="Equationzhao avatar" />
+				</p>
+				<p>欢迎来到 Eq 的个人网站</p>
+				<p><img src="https://wakatime.com/badge/user/90d4bbc2-a779-4bb1-a2a2-572e90fc4e29.svg" alt="Eq" /></p>
 				<h4>关于我</h4>
-				一个无所事事的大四学牲 <br> <br>
-				<h5>属性:</h5>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > A炮</code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > JM </code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > byr.pt </code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > 双子座 </code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > Go Cpp </code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > C-Pop R&B </code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > University of Science and Technology Beijing</code> <br>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code> > ⭕️ Arch/MacOS/Windows</code>
-				<ul>
-					<img src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api?username=Equationzhao"/>
-					<img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=Equationzhao">
+				<p>一个无所事事的大四学牲</p>
+			</div>
+			<div class="panel">
+				<h5>属性</h5>
+				<ul class="meta-list">
+					<li><code>A炮</code></li>
+					<li><code>JM</code></li>
+					<li><code>byr.pt</code></li>
+					<li><code>双子座</code></li>
+					<li><code>Go Cpp</code></li>
+					<li><code>C-Pop R&B</code></li>
+					<li><code>University of Science and Technology Beijing</code></li>
+					<li><code>Arch/MacOS/Windows</code></li>
 				</ul>
-				<ul>
-					<img src="https://byr.pt/mybar.php?userid=333414&bgpic=6"><br>
-				</ul>
-				<br>
-				<p style="text-align:right">
-					<strong> 
-						Powered by <a href="https://astro.build">Astro</a> <br>
-						评论系统 <a href="https://giscus.app"> giscus</a> <br>
-						文字的力量 <a href="https://hitokoto.cn"> 一言</a> <br>
+				<div class="stat-images">
+					<img src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api?username=Equationzhao" alt="github stats" />
+					<img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=Equationzhao" alt="profile summary" />
+					<img src="https://byr.pt/mybar.php?userid=333414&bgpic=6" alt="byr stats" />
+				</div>
+				<p class="powered">
+					<strong>
+						Powered by <a href="https://astro.build">Astro</a><br />
+						评论系统 <a href="https://giscus.app">giscus</a><br />
+						文字的力量 <a href="https://hitokoto.cn">一言</a><br />
 					</strong>
-			</p>
-			</main>
-		</div>
-	<Footer/>
+				</p>
+			</div>
+		</section>
+	</main>
+	<Footer />
 </body>
 
 </html>

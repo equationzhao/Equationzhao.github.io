@@ -15,18 +15,51 @@ import wolf from '../content/img/index-wolf.png';
 	<body>
 		<Header title={SITE_TITLE} />
 		<main>
-			<h1>🧑‍🚀 Hi there!<br>&nbsp;&nbsp;&nbsp;&nbsp;你好</h1>
-			<p>
-				欢迎来到 Eq 的个人网站<br>
-				这里是我的个人博客，我会在这里分享一些我学习的东西，也会分享一些我生活的东西，希望你能喜欢❤️
-			</p>
-				<strong>Have fun coding! 🎉<br></strong>
-			</p>
-			<p>
-				<Image src={wolf} alt="my wolf"/>
-                <center>cattie</center>
-			</p>
+			<section class="hero">
+				<h1>Hi there!<br />你好</h1>
+				<p>
+					欢迎来到 Eq 的个人网站。这里是我的个人博客，我会在这里分享学习与生活中的内容。
+				</p>
+				<p class="hero-cta"><strong>Have fun coding!</strong></p>
+			</section>
+			<section class="hero-card">
+				<Image src={wolf} alt="my wolf" />
+				<p class="caption">cattie</p>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.hero,
+	.hero-card {
+		background: rgba(var(--surface-1), 0.72);
+		border: 1px solid rgba(var(--border), 0.28);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--surface-shadow);
+	}
+	.hero {
+		padding: 2rem;
+	}
+	.hero h1 {
+		margin-bottom: 1rem;
+	}
+	.hero-cta {
+		margin: 1rem 0 0;
+	}
+	.hero-card {
+		margin-top: 1.2rem;
+		padding: 1rem;
+		text-align: center;
+	}
+	.caption {
+		margin: 0.7rem 0 0.15rem;
+		color: rgb(var(--gray));
+	}
+	@media (max-width: 720px) {
+		.hero {
+			padding: 1.2rem;
+		}
+	}
+</style>

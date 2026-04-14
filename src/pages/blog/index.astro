@@ -16,28 +16,32 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
-			main {
-				width: 1080px;
+			section {
+				padding: 1.2rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--surface-shadow);
 			}
 			ul {
-				display: flex;
-				flex-wrap: wrap;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
 				gap: 2rem;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
 			}
 			ul li {
-				width: calc(50% - 1rem);
+				border-radius: var(--radius-md);
+				background: rgba(var(--surface-0), 0.55);
+				border: 1px solid rgba(var(--border), 0.2);
 			}
 			ul li * {
 				text-decoration: none;
 				transition: 0.2s ease;
 			}
 			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
+				grid-column: 1 / -1;
 			}
 			ul li:first-child .title {
 				font-size: 2.369rem;
@@ -48,11 +52,12 @@ const posts = (await getCollection('blog')).sort(
 			}
 			ul li a {
 				display: block;
+				padding: 1rem;
 			}
 			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
+				margin: 0 0 0.5rem;
+				color: rgb(237, 242, 255);
+				line-height: 1.2;
 			}
 			.date {
 				margin: 0;
@@ -62,16 +67,19 @@ const posts = (await getCollection('blog')).sort(
 			ul li a:hover .date {
 				color: rgb(var(--accent));
 			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
+			ul li a:hover {
+				transform: translateY(-3px);
+			}
+			ul li a:hover img {
+				box-shadow: 0 0 0 1px rgba(var(--accent), 0.48), 0 10px 24px rgba(4, 8, 22, 0.55);
 			}
 			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
+				section {
+					padding: 0.8rem;
 				}
-				ul li {
-					width: 100%;
-					text-align: center;
+				ul {
+					grid-template-columns: 1fr;
+					gap: 0.8rem;
 				}
 				ul li:first-child {
 					margin-bottom: 0;

@@ -90,7 +90,7 @@ const posts = (await getCollection('blog')).sort(
 					{						
 						posts.map((post) => (
 							<li>
-								<a href={`/blog/${post.slug}/`} rel = prefetch-intent>
+								<a href={`/blog/${post.id.replace(/\.md$/, '')}/`} rel = prefetch-intent>
 									<div class="hero-image">
 										<img width={510} height={205} src={post.data.heroImage} />
 									</div>

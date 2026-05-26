@@ -23,6 +23,44 @@
 	--radius-md: 12px;
 	--radius-lg: 18px;
 }
+
+[data-theme="light"] {
+	--accent: 30, 110, 200;
+	--accent-strong: 90, 60, 220;
+	--black: 10, 14, 30;
+	--gray-dark: 36, 40, 52;
+	--gray: 100, 110, 135;
+	--gray-light: 150, 158, 180;
+	--surface-0: 235, 238, 245;
+	--surface-1: 245, 247, 252;
+	--surface-2: 228, 232, 242;
+	--border: 190, 200, 225;
+	--body-gradient: radial-gradient(circle at 0% 0%, rgba(var(--accent), 0.08), transparent 45%),
+		radial-gradient(circle at 90% 10%, rgba(var(--accent-strong), 0.06), transparent 40%),
+		linear-gradient(165deg, #e8ecf4 0%, #f0f2f8 45%, #f5f7fc 100%);
+	--box-shadow: 0 12px 32px rgba(100, 110, 140, 0.12), 0 0 0 1px rgba(var(--border), 0.35);
+	--surface-shadow: 0 8px 24px rgba(100, 110, 140, 0.1), 0 0 0 1px rgba(var(--border), 0.3);
+	color-scheme: light;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+	color: rgb(28, 32, 48);
+}
+[data-theme="light"] code {
+	color: rgb(40, 44, 60);
+}
+[data-theme="light"] a {
+	color: rgb(30, 110, 200);
+}
+[data-theme="light"] .brand a,
+[data-theme="light"] .brand a.active {
+	color: rgb(28, 32, 48);
+}
 @font-face {
 	font-family: 'Atkinson';
 	src: url('/fonts/atkinson-regular.woff') format('woff');
@@ -176,4 +214,111 @@ a:focus-visible {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto seperate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* Code copy button */
+pre {
+	position: relative;
+}
+.copy-btn {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	padding: 4px 10px;
+	font-size: 0.72rem;
+	font-family: 'Atkinson', sans-serif;
+	background: rgba(var(--surface-2), 0.85);
+	color: rgb(var(--gray));
+	border: 1px solid rgba(var(--border), 0.3);
+	border-radius: 6px;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+pre:hover .copy-btn {
+	opacity: 1;
+}
+.copy-btn:hover {
+	color: rgb(var(--accent));
+	border-color: rgba(var(--accent), 0.5);
+}
+
+/* Image lightbox */
+.prose img {
+	cursor: zoom-in;
+	transition: transform 0.2s ease;
+}
+.lightbox-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	background: rgba(0, 0, 0, 0.85);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: zoom-out;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.25s ease;
+}
+.lightbox-overlay.active {
+	opacity: 1;
+	pointer-events: auto;
+}
+.lightbox-overlay img {
+	max-width: 90vw;
+	max-height: 90vh;
+	border-radius: var(--radius-md);
+	box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Table of Contents */
+.toc {
+	width: min(760px, calc(100% - 2rem));
+	margin: 0 auto 1rem;
+	padding: 1rem 1.4rem;
+	background: rgba(var(--surface-1), 0.72);
+	border: 1px solid rgba(var(--border), 0.28);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--surface-shadow);
+}
+.toc::before {
+	content: '目录';
+	display: block;
+	font-size: 0.82rem;
+	font-weight: 700;
+	color: rgb(var(--gray));
+	letter-spacing: 0.05em;
+	margin-bottom: 0.6rem;
+}
+.toc ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.toc li {
+	margin: 0.2rem 0;
+}
+.toc a {
+	display: block;
+	padding: 0.2rem 0.6rem;
+	font-size: 0.88rem;
+	color: rgb(var(--gray));
+	text-decoration: none;
+	border-left: 2px solid transparent;
+	transition: color 0.2s, border-color 0.2s;
+}
+.toc a:hover,
+.toc a.active {
+	color: rgb(var(--accent));
+	border-left-color: rgb(var(--accent));
+}
+.toc-h3 a {
+	padding-left: 1.4rem;
+	font-size: 0.82rem;
+}
+@media (max-width: 720px) {
+	.toc {
+		display: none;
+	}
 }

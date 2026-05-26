@@ -96,11 +96,11 @@ const posts = (await getCollection('blog')).sort(
 			<section>
 				<ul>
 					{						
-						posts.map((post) => (
+						posts.map((post, index) => (
 							<li>
 								<a href={`/blog/${post.id.replace(/\.md$/, '')}/`} rel = prefetch-intent>
 									<div class="hero-image">
-										<img width={510} height={205} src={post.data.heroImage} />
+										<img width={510} height={205} src={post.data.heroImage} alt={post.data.title} loading={index === 0 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} />
 									</div>
 									<h4 class="title">{post.data.title}</h4>
 									<p class="date"><em>{post.data.description}</em></p>

@@ -18,7 +18,20 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} image={heroImage} />
+		<script type="application/ld+json" set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "BlogPosting",
+			"headline": title,
+			"description": description,
+			"datePublished": pubDateObj.toISOString(),
+			...(updatedDateObj && { "dateModified": updatedDateObj.toISOString() }),
+			...(heroImage && { "image": new URL(heroImage, Astro.site).href }),
+			"author": { "@type": "Person", "name": "Equationzhao" },
+			"publisher": { "@type": "Person", "name": "Equationzhao" },
+			"url": Astro.url.href,
+			"mainEntityOfPage": { "@type": "WebPage", "@id": Astro.url.href }
+		})} />
 		<style>
 			main {
 				width: min(1080px, calc(100% - 2.5rem));
@@ -75,7 +88,7 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 		<main>
 			<article>
 				<div class="hero-image">
-					{heroImage && <img width={510} height={205} src={heroImage} />}
+					{heroImage && <img width={510} height={205} src={heroImage} alt={title} loading="eager" fetchpriority="high" />}
 				</div>
 				<div class="prose">
 					<div class="title">
@@ -99,5 +112,8 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 			</article>
 		</main>
 		<Footer />
+		<script src="/copy-code.js" defer></script>
+		<script src="/lightbox.js" defer></script>
+		<script src="/toc.js" defer></script>
 	</body>
 </html>

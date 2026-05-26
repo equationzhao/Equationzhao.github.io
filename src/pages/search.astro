@@ -11,7 +11,7 @@ const searchData = posts.map((p) => ({
 	title: p.data.title,
 	description: p.data.description,
 	slug: p.id.replace(/\.md$/, ''),
-	date: p.data.pubDate.toISOString().slice(0, 10),
+	date: new Date(p.data.pubDate).toISOString().slice(0, 10),
 }));
 ---
 

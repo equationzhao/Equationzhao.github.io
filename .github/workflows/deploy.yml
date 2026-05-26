@@ -45,6 +45,5 @@ jobs:
         with:
           urls: |
             https://equationzhao.github.io/
-            https://equationzhao.github.io/blog/
           uploadArtifacts: true
           budgetPath: .github/lighthouse-budget.json

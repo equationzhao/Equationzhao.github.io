@@ -4,19 +4,29 @@ import Comment from '../../components/Comment.astro';
 import BlogPost from '../../layouts/BlogPost.astro';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
+	const posts = (await getCollection('blog')).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+	);
+	return posts.map((post, index) => ({
 		params: { slug: post.id.replace(/\.md$/, '') },
-		props: post,
+		props: {
+			post,
+			prev: index < posts.length - 1 ? posts[index + 1] : null,
+			next: index > 0 ? posts[index - 1] : null,
+		},
 	}));
 }
-type Props = CollectionEntry<'blog'>;
+type Props = {
+	post: CollectionEntry<'blog'>;
+	prev: CollectionEntry<'blog'> | null;
+	next: CollectionEntry<'blog'> | null;
+};
 
-const post = Astro.props;
+const { post, prev, next } = Astro.props;
 const { Content, remarkPluginFrontmatter } = await render(post);
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} prev={prev} next={next}>
 	<p style="text-align: center;">预计阅读时间 {remarkPluginFrontmatter.minutesRead}</p>
 	<Content />
 	<Comment />

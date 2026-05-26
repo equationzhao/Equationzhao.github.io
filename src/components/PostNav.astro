@@ -1,0 +1,81 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	prev: CollectionEntry<'blog'> | null;
+	next: CollectionEntry<'blog'> | null;
+}
+
+const { prev, next } = Astro.props;
+---
+
+{(prev || next) && (
+<nav class="post-nav">
+	{prev && (
+		<a href={`/blog/${prev.id.replace(/\.md$/, '')}`} class="post-nav-card prev">
+			<span class="post-nav-label">← 上一篇</span>
+			<span class="post-nav-title">{prev.data.title}</span>
+			<span class="post-nav-date"><FormattedDate date={prev.data.pubDate} /></span>
+		</a>
+	)}
+	{next && (
+		<a href={`/blog/${next.id.replace(/\.md$/, '')}`} class="post-nav-card next">
+			<span class="post-nav-label">下一篇 →</span>
+			<span class="post-nav-title">{next.data.title}</span>
+			<span class="post-nav-date"><FormattedDate date={next.data.pubDate} /></span>
+		</a>
+	)}
+</nav>
+)}
+
+<style>
+	.post-nav {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+		width: min(760px, calc(100% - 2rem));
+		margin: 1.5rem auto 0;
+	}
+	.post-nav-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		padding: 1.2rem 1.4rem;
+		background: rgba(var(--surface-1), 0.72);
+		border: 1px solid rgba(var(--border), 0.28);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--surface-shadow);
+		text-decoration: none;
+		transition: all 0.25s ease;
+	}
+	.post-nav-card:hover {
+		background: rgba(var(--surface-2), 0.85);
+		border-color: rgba(var(--accent), 0.35);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(3, 7, 18, 0.5), 0 0 0 1px rgba(var(--accent), 0.2);
+	}
+	.post-nav-card.next {
+		text-align: right;
+	}
+	.post-nav-label {
+		font-size: 0.78rem;
+		color: rgb(var(--accent));
+		letter-spacing: 0.04em;
+	}
+	.post-nav-title {
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: rgb(var(--gray-dark));
+		line-height: 1.3;
+	}
+	.post-nav-date {
+		font-size: 0.78rem;
+		color: rgb(var(--gray));
+	}
+	@media (max-width: 720px) {
+		.post-nav {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

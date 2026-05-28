@@ -1,0 +1,102 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+const apps = [
+	{
+		title: 'CP 计算器',
+		description: 'Critical Power & W\' — 输入 3 分钟和 12 分钟最大功率，算出临界功率和无氧功储备',
+		href: '/apps/cp-calc',
+		icon: '⚡',
+	},
+];
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`Apps | ${SITE_TITLE}`} description="Eq 的小工具合集" />
+		<style>
+			.apps-header {
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+			.apps-header h1 {
+				font-size: clamp(1.8rem, 4vw, 2.4rem);
+				margin: 0 0 0.4rem;
+				color: rgb(232, 238, 255);
+			}
+			.apps-header p {
+				color: rgba(var(--gray), 0.9);
+				font-size: 0.95rem;
+				margin: 0;
+			}
+			.apps-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+				gap: 1.2rem;
+				padding: 1.4rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--surface-shadow);
+			}
+			.app-card {
+				display: flex;
+				align-items: flex-start;
+				gap: 1rem;
+				padding: 1.2rem;
+				border-radius: var(--radius-md);
+				background: rgba(var(--surface-0), 0.55);
+				border: 1px solid rgba(var(--border), 0.2);
+				text-decoration: none;
+				color: inherit;
+				transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+			}
+			.app-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+				border-color: rgba(var(--accent), 0.45);
+			}
+			.app-icon {
+				font-size: 2rem;
+				line-height: 1;
+				flex-shrink: 0;
+			}
+			.app-info h2 {
+				font-size: 1.1rem;
+				margin: 0 0 0.3rem;
+				color: rgb(232, 238, 255);
+			}
+			.app-info p {
+				font-size: 0.85rem;
+				margin: 0;
+				color: rgba(var(--gray), 0.85);
+				line-height: 1.5;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="apps-header">
+				<h1>Apps</h1>
+				<p>实用小工具，即开即用</p>
+			</div>
+			<div class="apps-grid">
+				{apps.map(app => (
+					<a class="app-card" href={app.href} rel="prefetch-intent">
+						<span class="app-icon">{app.icon}</span>
+						<div class="app-info">
+							<h2>{app.title}</h2>
+							<p>{app.description}</p>
+						</div>
+					</a>
+				))}
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

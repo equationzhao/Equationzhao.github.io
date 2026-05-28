@@ -1,0 +1,269 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`CP 计算器 | ${SITE_TITLE}`} description="临界功率 & W' 计算器 — Monod 两参数模型" />
+		<style>
+			.back-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.3rem;
+				color: var(--accent);
+				text-decoration: none;
+				font-size: 0.9rem;
+				margin-bottom: 1.2rem;
+				transition: opacity 0.2s;
+			}
+			.back-link:hover {
+				opacity: 0.8;
+			}
+			.cp-container {
+				max-width: 600px;
+				margin: 0 auto;
+				padding: 2rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--surface-shadow);
+			}
+			.cp-container h1 {
+				color: rgb(var(--gray-dark));
+				margin-bottom: 0.3rem;
+				font-size: 1.6rem;
+				text-align: center;
+			}
+			.subtitle {
+				color: rgba(var(--gray), 0.9);
+				text-align: center;
+				margin-bottom: 2rem;
+				font-size: 0.9rem;
+			}
+			.input-group {
+				margin-bottom: 1.8rem;
+			}
+			label {
+				display: block;
+				color: rgb(var(--gray-dark));
+				margin-bottom: 0.6rem;
+				font-weight: 500;
+				font-size: 0.95rem;
+			}
+			.input-container {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+			}
+			input[type="range"] {
+				flex: 1;
+				height: 6px;
+				border-radius: 4px;
+				background: rgba(var(--border), 0.4);
+				outline: none;
+				-webkit-appearance: none;
+			}
+			input[type="range"]::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				width: 18px;
+				height: 18px;
+				border-radius: 50%;
+				background: rgb(var(--accent-strong));
+				cursor: pointer;
+				transition: transform 0.15s;
+			}
+			input[type="range"]::-webkit-slider-thumb:hover {
+				transform: scale(1.2);
+			}
+			input[type="range"]::-moz-range-thumb {
+				width: 18px;
+				height: 18px;
+				border-radius: 50%;
+				background: rgb(var(--accent-strong));
+				cursor: pointer;
+				border: none;
+			}
+			input[type="number"] {
+				width: 90px;
+				padding: 0.5rem;
+				border: 1px solid rgba(var(--border), 0.4);
+				background: rgba(var(--surface-0), 0.6);
+				border-radius: var(--radius-md);
+				font-size: 1rem;
+				text-align: center;
+				color: rgb(var(--gray-dark));
+				transition: border-color 0.2s;
+			}
+			input[type="number"]:focus {
+				outline: none;
+				border-color: rgb(var(--accent));
+			}
+			.unit {
+				color: rgba(var(--gray-light), 0.9);
+				font-size: 0.85rem;
+				min-width: 24px;
+			}
+			.results {
+				background: linear-gradient(135deg, rgba(var(--accent-strong), 0.85), rgba(var(--accent), 0.85));
+				border-radius: var(--radius-md);
+				padding: 1.8rem;
+				margin-top: 2rem;
+				backdrop-filter: blur(8px);
+			}
+			.result-item {
+				margin-bottom: 1.4rem;
+				color: #fff;
+			}
+			.result-item:last-child {
+				margin-bottom: 0;
+			}
+			.result-label {
+				font-size: 0.85rem;
+				opacity: 0.9;
+				margin-bottom: 0.2rem;
+			}
+			.result-value {
+				font-size: 2.2rem;
+				font-weight: bold;
+				display: flex;
+				align-items: baseline;
+				gap: 0.5rem;
+			}
+			.result-unit {
+				font-size: 1rem;
+				opacity: 0.85;
+			}
+			.formula-info {
+				background: rgba(var(--surface-0), 0.55);
+				border-radius: var(--radius-md);
+				padding: 1.2rem;
+				margin-top: 2rem;
+				font-size: 0.82rem;
+				color: rgba(var(--gray), 0.9);
+				line-height: 1.7;
+			}
+			.formula-info h3 {
+				color: rgb(var(--gray-dark));
+				margin-bottom: 0.6rem;
+				font-size: 0.92rem;
+			}
+			.formula {
+				background: rgba(var(--surface-1), 0.72);
+				padding: 0.6rem;
+				border-radius: 6px;
+				margin: 0.6rem 0;
+				font-family: 'Courier New', monospace;
+				text-align: center;
+				font-size: 0.95rem;
+				color: rgb(var(--gray-dark));
+			}
+			@media (max-width: 600px) {
+				.cp-container {
+					padding: 1.4rem 1rem;
+				}
+				.result-value {
+					font-size: 1.8rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<a class="back-link" href="/apps" rel="prefetch-intent">&larr; Apps</a>
+			<div class="cp-container">
+				<h1>临界功率（CP）计算器</h1>
+				<p class="subtitle">Critical Power & W' Calculator</p>
+
+				<div class="input-group">
+					<label for="cp3">CP3 - 3 分钟最大功率</label>
+					<div class="input-container">
+						<input type="range" id="cp3-slider" min="100" max="500" value="300" step="1" />
+						<input type="number" id="cp3" min="100" max="500" value="300" step="1" />
+						<span class="unit">W</span>
+					</div>
+				</div>
+
+				<div class="input-group">
+					<label for="cp12">CP12 - 12 分钟最大功率</label>
+					<div class="input-container">
+						<input type="range" id="cp12-slider" min="100" max="500" value="250" step="1" />
+						<input type="number" id="cp12" min="100" max="500" value="250" step="1" />
+						<span class="unit">W</span>
+					</div>
+				</div>
+
+				<div class="results">
+					<div class="result-item">
+						<div class="result-label">临界功率 (CP)</div>
+						<div class="result-value">
+							<span id="cp-result">0</span>
+							<span class="result-unit">瓦特 (W)</span>
+						</div>
+					</div>
+					<div class="result-item">
+						<div class="result-label">无氧功储备 (W')</div>
+						<div class="result-value">
+							<span id="wprime-result">0</span>
+							<span class="result-unit">焦耳 (J)</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="formula-info">
+					<h3>计算公式（Monod 2 参数模型）</h3>
+					<div class="formula">P(t) = CP + W' / t</div>
+					<p>
+						<strong>P(t)</strong>：维持时间 t 对应的最大功率<br />
+						<strong>CP</strong>：临界功率（长时间可维持的最大功率）<br />
+						<strong>W'</strong>：无氧功储备（超过 CP 后的能量储备）<br />
+						<strong>t</strong>：维持时间（秒）
+					</p>
+				</div>
+			</div>
+		</main>
+		<Footer />
+		<script is:inline>
+			const cp3Slider = document.getElementById('cp3-slider');
+			const cp3Input = document.getElementById('cp3');
+			const cp12Slider = document.getElementById('cp12-slider');
+			const cp12Input = document.getElementById('cp12');
+			const cpResult = document.getElementById('cp-result');
+			const wprimeResult = document.getElementById('wprime-result');
+
+			cp3Slider.addEventListener('input', (e) => {
+				cp3Input.value = e.target.value;
+				calculate();
+			});
+			cp3Input.addEventListener('input', (e) => {
+				cp3Slider.value = e.target.value;
+				calculate();
+			});
+			cp12Slider.addEventListener('input', (e) => {
+				cp12Input.value = e.target.value;
+				calculate();
+			});
+			cp12Input.addEventListener('input', (e) => {
+				cp12Slider.value = e.target.value;
+				calculate();
+			});
+
+			function calculate() {
+				const p3 = parseFloat(cp3Input.value);
+				const p12 = parseFloat(cp12Input.value);
+				const t3 = 3 * 60;
+				const t12 = 12 * 60;
+				const wprime = (p3 - p12) / (1 / t3 - 1 / t12);
+				const cp = p3 - wprime / t3;
+				cpResult.textContent = cp.toFixed(1);
+				wprimeResult.textContent = wprime.toFixed(0);
+			}
+
+			calculate();
+		</script>
+	</body>
+</html>

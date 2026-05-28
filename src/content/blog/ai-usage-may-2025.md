@@ -1,6 +1,6 @@
 ---
 title: '五月 AI 用量报告'
-pubDate: 2025-05-31
+pubDate: 2026-05-26
 description: '四款主力 AI 工具的订阅、Token 用量与真实使用感受。有白嫖，有踩坑，也有真香。'
 author: 'Eq'
 heroImage: 'https://bingw.jasonzeng.dev?index=25'
@@ -9,7 +9,7 @@ tags: ["AI"]
 <link rel="stylesheet" href="/ai-report.css" />
 <div class="ai-report">
 <section class="hero">
-<div class="hero-date reveal">MAY 2025 REPORT</div>
+<div class="hero-date reveal">MAY 2026 REPORT</div>
 <h1>
 <span class="line reveal reveal-d1">五月</span>
 <span class="line reveal reveal-d2">AI 用量报告</span>
@@ -116,7 +116,7 @@ tags: ["AI"]
 </div>
 </section>
 <footer class="ar-footer">
-<p>MAY 2025 · EQUATIONZHAO</p>
+<p>MAY 2026 · EQUATIONZHAO</p>
 <div class="accent">下个月见</div>
 </footer>
 </div>

@@ -1,0 +1,749 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`CP Pro | ${SITE_TITLE}`} description="Morton 3-parameter critical power model — simulated annealing with outlier detection" />
+		<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+		<style is:inline>
+			/* ---- Reset form elements ---- */
+			input[type="number"],
+			input[type="checkbox"],
+			button {
+				all: unset;
+				box-sizing: border-box;
+			}
+
+			/* ---- Custom number input ---- */
+			input[type="number"] {
+				display: block;
+				width: 100%;
+				padding: 0.55rem 0.75rem;
+				border: 1px solid rgba(var(--border), 0.3);
+				background: rgba(var(--surface-0), 0.55);
+				border-radius: 8px;
+				font: 400 0.9rem 'DM Mono', monospace;
+				color: rgb(var(--gray-dark));
+				transition: border-color 0.2s, box-shadow 0.2s;
+				-webkit-appearance: none;
+				-moz-appearance: textfield;
+			}
+			input[type="number"]::-webkit-inner-spin-button,
+			input[type="number"]::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+			input[type="number"]:focus {
+				outline: none;
+				border-color: var(--accent);
+				box-shadow: 0 0 0 3px rgba(var(--accent), 0.12);
+			}
+			input[type="number"]::placeholder {
+				color: rgba(var(--gray-light), 0.4);
+			}
+			input[type="number"].error {
+				border-color: #e74c3c;
+				box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+			}
+
+			/* ---- Checkbox ---- */
+			input[type="checkbox"] {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 18px;
+				height: 18px;
+				min-width: 18px;
+				border: 2px solid rgba(var(--border), 0.4);
+				border-radius: 4px;
+				background: rgba(var(--surface-0), 0.5);
+				cursor: pointer;
+				position: relative;
+				transition: all 0.15s;
+			}
+			input[type="checkbox"]:checked {
+				background: var(--accent-strong);
+				border-color: var(--accent-strong);
+			}
+			input[type="checkbox"]:checked::after {
+				content: '';
+				position: absolute;
+				left: 4px;
+				top: 1px;
+				width: 5px;
+				height: 9px;
+				border: solid #fff;
+				border-width: 0 2px 2px 0;
+				transform: rotate(45deg);
+			}
+			input[type="checkbox"]:focus-visible {
+				box-shadow: 0 0 0 3px rgba(var(--accent), 0.2);
+			}
+
+			/* ---- Buttons ---- */
+			button {
+				cursor: pointer;
+			}
+
+			/* ---- Layout ---- */
+			.pm-top {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 1.2rem;
+			}
+			.back-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.3rem;
+				color: var(--accent);
+				text-decoration: none;
+				font: 500 0.85rem 'Instrument Sans', sans-serif;
+			}
+			.back-link:hover { opacity: 0.75; }
+			.pm-badge {
+				font: 500 0.7rem 'DM Mono', monospace;
+				color: rgba(var(--gray-light), 0.7);
+				padding: 0.25rem 0.7rem;
+				border: 1px solid rgba(var(--border), 0.2);
+				border-radius: 999px;
+				letter-spacing: 0.04em;
+			}
+
+			/* ---- Hero metrics ---- */
+			.hero-metrics {
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 0.8rem;
+				margin-bottom: 1.2rem;
+				opacity: 0;
+				transform: translateY(8px);
+				transition: opacity 0.5s ease, transform 0.5s ease;
+			}
+			.hero-metrics.visible { opacity: 1; transform: translateY(0); }
+			.metric-card {
+				padding: 1rem 1.2rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-md);
+				text-align: center;
+				position: relative;
+				overflow: hidden;
+			}
+			.metric-card::before {
+				content: '';
+				position: absolute;
+				top: 0; left: 0; right: 0;
+				height: 2px;
+				background: var(--accent);
+				opacity: 0.5;
+			}
+			.metric-label {
+				font: 500 0.68rem 'DM Mono', monospace;
+				color: rgba(var(--gray-light), 0.8);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin-bottom: 0.4rem;
+			}
+			.metric-value {
+				font: 500 clamp(1.3rem, 2.8vw, 1.9rem) 'DM Mono', monospace;
+				color: rgb(var(--gray-dark));
+				line-height: 1.1;
+			}
+			.metric-unit {
+				font: 400 0.72rem 'DM Mono', monospace;
+				color: rgba(var(--gray), 0.6);
+				margin-top: 0.25rem;
+			}
+
+			/* ---- Grid ---- */
+			.pm-grid {
+				display: grid;
+				grid-template-columns: 340px 1fr;
+				gap: 1rem;
+				align-items: start;
+			}
+
+			/* ---- Panel ---- */
+			.panel {
+				padding: 1.2rem;
+				background: rgba(var(--surface-1), 0.72);
+				border: 1px solid rgba(var(--border), 0.28);
+				border-radius: var(--radius-lg);
+				box-shadow: var(--surface-shadow);
+			}
+			.panel-title {
+				font: 600 0.78rem 'DM Mono', monospace;
+				color: rgba(var(--gray-light), 0.8);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin: 0 0 1rem;
+				padding-bottom: 0.6rem;
+				border-bottom: 1px solid rgba(var(--border), 0.15);
+			}
+
+			/* ---- Form fields ---- */
+			.form-row {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 0.6rem;
+				margin-bottom: 0.7rem;
+			}
+			.field label {
+				display: block;
+				font: 500 0.75rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray), 0.8);
+				margin-bottom: 0.3rem;
+			}
+			.hint-text {
+				font: 400 0.65rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray-light), 0.55);
+				margin-top: 0.2rem;
+			}
+
+			/* ---- Toggle ---- */
+			.toggle-row {
+				display: flex;
+				align-items: center;
+				gap: 0.55rem;
+				margin-bottom: 0.8rem;
+				padding: 0.55rem 0.7rem;
+				border-radius: 8px;
+				border: 1px solid rgba(var(--border), 0.18);
+				background: rgba(var(--surface-0), 0.3);
+			}
+			.toggle-row span {
+				font: 400 0.82rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray), 0.85);
+			}
+
+			/* ---- Data points ---- */
+			.dp-header {
+				font: 500 0.75rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray), 0.75);
+				margin-bottom: 0.5rem;
+			}
+			.point-row {
+				display: grid;
+				grid-template-columns: 1fr 1fr 30px;
+				gap: 0.4rem;
+				margin-bottom: 0.35rem;
+			}
+			.rm-btn {
+				width: 30px;
+				height: 30px;
+				border: none;
+				background: transparent;
+				color: rgba(var(--gray-light), 0.5);
+				border-radius: 6px;
+				font-size: 1.1rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.15s;
+				align-self: end;
+				margin-bottom: 1px;
+			}
+			.rm-btn:hover { background: rgba(231,76,60,0.1); color: #e74c3c; }
+			.rm-btn.off { opacity: 0.2; cursor: default; pointer-events: none; }
+
+			/* ---- Buttons ---- */
+			.btn-strip {
+				display: flex;
+				gap: 0.4rem;
+				margin-top: 0.6rem;
+			}
+			.btn {
+				flex: 1;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0.55rem 0.8rem;
+				border: 1px solid rgba(var(--border), 0.3);
+				border-radius: 8px;
+				font: 500 0.82rem 'Instrument Sans', sans-serif;
+				color: rgb(var(--gray-dark));
+				background: rgba(var(--surface-0), 0.4);
+				transition: all 0.2s;
+			}
+			.btn:hover {
+				border-color: rgba(var(--accent), 0.5);
+				color: var(--accent);
+				background: rgba(var(--accent), 0.06);
+			}
+			.btn-go {
+				background: var(--accent-strong);
+				color: #fff;
+				border-color: transparent;
+				font-weight: 600;
+			}
+			.btn-go:hover { opacity: 0.88; color: #fff; background: var(--accent-strong); }
+			.btn-go:disabled { opacity: 0.4; cursor: default; }
+
+			/* ---- Chart ---- */
+			.chart-wrap {
+				position: relative;
+				height: 340px;
+			}
+			.chart-wrap canvas {
+				width: 100% !important;
+				height: 100% !important;
+			}
+			.chart-empty {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100%;
+				font: 400 0.85rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray-light), 0.45);
+			}
+			.chart-footer {
+				display: flex;
+				justify-content: flex-end;
+				gap: 0.4rem;
+				margin-top: 0.6rem;
+			}
+
+			/* ---- Zone bars ---- */
+			.zone-row {
+				display: grid;
+				grid-template-columns: 72px 1fr 80px;
+				gap: 0.5rem;
+				align-items: center;
+				margin-bottom: 0.3rem;
+				padding: 0.2rem 0;
+			}
+			.zone-name {
+				font: 400 0.75rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray), 0.75);
+				text-align: right;
+			}
+			.zone-bar-track {
+				height: 8px;
+				background: rgba(var(--surface-0), 0.6);
+				border-radius: 4px;
+				position: relative;
+				overflow: hidden;
+			}
+			.zone-bar-fill {
+				position: absolute;
+				top: 0;
+				height: 100%;
+				border-radius: 4px;
+			}
+			.zone-range {
+				font: 400 0.72rem 'DM Mono', monospace;
+				color: rgba(var(--gray-light), 0.65);
+			}
+
+			/* ---- Stats ---- */
+			.stats-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 0.2rem 1rem;
+			}
+			.stat-item {
+				display: flex;
+				justify-content: space-between;
+				align-items: baseline;
+				padding: 0.35rem 0;
+				border-bottom: 1px solid rgba(var(--border), 0.08);
+			}
+			.stat-label {
+				font: 400 0.8rem 'Instrument Sans', sans-serif;
+				color: rgba(var(--gray), 0.7);
+			}
+			.stat-value {
+				font: 500 0.9rem 'DM Mono', monospace;
+				color: rgb(var(--gray-dark));
+			}
+			.stat-unit {
+				font: 400 0.7rem 'DM Mono', monospace;
+				color: rgba(var(--gray), 0.5);
+				margin-left: 0.2rem;
+			}
+
+			/* ---- Tooltip ---- */
+			[data-tip] {
+				position: relative;
+				cursor: help;
+			}
+			[data-tip]::after {
+				content: attr(data-tip);
+				position: absolute;
+				bottom: calc(100% + 8px);
+				left: 50%;
+				transform: translateX(-50%) translateY(4px);
+				width: max-content;
+				max-width: 240px;
+				padding: 0.5rem 0.7rem;
+				background: rgba(var(--surface-2), 0.96);
+				border: 1px solid rgba(var(--border), 0.25);
+				border-radius: 8px;
+				font: 400 0.75rem/1.5 'Instrument Sans', sans-serif;
+				color: rgb(var(--gray-dark));
+				white-space: normal;
+				text-align: center;
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity 0.15s, transform 0.15s;
+				z-index: 30;
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+			}
+			[data-tip]:hover::after {
+				opacity: 1;
+				transform: translateX(-50%) translateY(0);
+			}
+
+			/* ---- Empty state ---- */
+			.empty-state {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: 2.5rem 1rem;
+				text-align: center;
+			}
+			.empty-icon { font-size: 2rem; margin-bottom: 0.6rem; opacity: 0.35; }
+			.empty-text { font: 400 0.85rem 'Instrument Sans', sans-serif; color: rgba(var(--gray-light), 0.7); }
+			.empty-hint { font: 400 0.75rem 'Instrument Sans', sans-serif; color: rgba(var(--gray-light), 0.4); margin-top: 0.25rem; }
+
+			/* ---- Loading ---- */
+			.loading-overlay {
+				position: absolute;
+				inset: 0;
+				background: rgba(var(--surface-0), 0.85);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				border-radius: var(--radius-lg);
+				z-index: 5;
+			}
+			.spinner {
+				width: 30px; height: 30px;
+				border: 2.5px solid rgba(var(--border), 0.35);
+				border-top-color: var(--accent);
+				border-radius: 50%;
+				animation: spin 0.7s linear infinite;
+			}
+			@keyframes spin { to { transform: rotate(360deg); } }
+			.loading-text {
+				margin-top: 0.5rem;
+				font: 500 0.78rem 'DM Mono', monospace;
+				color: rgba(var(--gray), 0.7);
+			}
+
+			@media (max-width: 860px) {
+				.pm-grid { grid-template-columns: 1fr; }
+				.hero-metrics { grid-template-columns: repeat(2, 1fr); }
+			}
+			@media (max-width: 480px) {
+				.hero-metrics { gap: 0.5rem; }
+				.metric-card { padding: 0.7rem 0.8rem; }
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="pm-top">
+				<a class="back-link" href="/apps" rel="prefetch-intent">&larr; Apps</a>
+				<span class="pm-badge">Morton 3-param &middot; Simulated Annealing</span>
+			</div>
+
+			<div class="hero-metrics" id="heroMetrics">
+				<div class="metric-card"><div class="metric-label" data-tip="Critical Power — the maximum power sustainable indefinitely, the aerobic ceiling">CP</div><div class="metric-value" id="hCP">--</div><div class="metric-unit">Watts</div></div>
+				<div class="metric-card"><div class="metric-label" data-tip="Anaerobic Work Capacity — finite energy reserve above CP, measured in joules">W'</div><div class="metric-value" id="hW">--</div><div class="metric-unit">Joules</div></div>
+				<div class="metric-card"><div class="metric-label" data-tip="Maximum instantaneous power output (t→0). Pmax = CP + W'/τ">Pmax</div><div class="metric-value" id="hPmax">--</div><div class="metric-unit">Watts</div></div>
+				<div class="metric-card"><div class="metric-label" data-tip="Estimated from 5-min power. VO2max = 16.6 + 8.87 × (P5min / weight)">VO2max</div><div class="metric-value" id="hVO2">--</div><div class="metric-unit" id="hVO2u">ml/kg/min</div></div>
+			</div>
+
+			<div class="pm-grid">
+				<!-- Left: Input -->
+				<div class="panel">
+					<div class="panel-title">Input</div>
+
+					<div class="form-row">
+						<div class="field">
+							<label for="runtimes">Iterations</label>
+							<input type="number" id="runtimes" value="5000" min="500" max="1000000" />
+							<div class="hint-text">Random restarts</div>
+						</div>
+						<div class="field">
+							<label for="weight">Weight (kg)</label>
+							<input type="number" id="weight" step="0.1" placeholder="optional" />
+							<div class="hint-text">For VO2max</div>
+						</div>
+					</div>
+
+					<div class="toggle-row">
+						<input type="checkbox" id="outlierDetect" checked />
+						<span>Outlier detection</span>
+					</div>
+
+					<div class="dp-header">Power-Time Points</div>
+					<div id="pointsContainer"></div>
+
+					<div class="btn-strip">
+						<button type="button" id="addPoint" class="btn">+ Add</button>
+						<button type="button" id="useExample" class="btn">Example</button>
+					</div>
+					<div class="btn-strip" style="margin-top:0.6rem">
+						<button type="button" id="calculate" class="btn btn-go">Calculate</button>
+						<button type="button" id="resetBtn" class="btn" style="flex:0 0 auto;padding:0.55rem 0.9rem">Reset</button>
+					</div>
+				</div>
+
+				<!-- Right: Results -->
+				<div style="display:flex;flex-direction:column;gap:1rem">
+					<div class="panel" id="chartPanel">
+						<div class="panel-title">Power Curve</div>
+						<div class="chart-wrap">
+							<div class="chart-empty" id="chartEmpty">Calculate to see power curve</div>
+							<canvas id="powerChart" style="display:none"></canvas>
+						</div>
+						<div class="chart-footer" id="chartFooter" style="display:none">
+							<button type="button" class="btn" id="downloadPng" style="flex:0 0 auto">Download PNG</button>
+						</div>
+					</div>
+
+					<div class="panel" id="zonesPanel">
+						<div class="panel-title">Training Zones</div>
+						<div id="zonesContent">
+							<div class="chart-empty" style="height:100px">Waiting for model</div>
+						</div>
+					</div>
+
+					<div class="panel" id="statsPanel" style="position:relative">
+						<div class="panel-title">Details</div>
+						<div id="statsContent">
+							<div class="empty-state">
+								<div class="empty-icon">&#9881;</div>
+								<div class="empty-text">Enter data and calculate</div>
+								<div class="empty-hint">Need at least 3 power-time points</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<Footer />
+
+		<script is:inline>
+		/* ==== ALGORITHM ==== */
+		function rmse(d, cp, w, tau) { let s = 0; for (const p of d) { const e = (w + cp*(p.time+tau))/(p.time+tau) - p.power; s += e*e; } return Math.sqrt(s/d.length); }
+		function msre(d, cp, w, tau) { let s = 0; for (const p of d) { const r = ((w + cp*(p.time+tau))/(p.time+tau) - p.power) / p.power; s += r*r; } return s/d.length; }
+
+		function anneal(d, icp, iw, itau) {
+			let cp=icp, w=iw, tau=itau, T=2000, ce=msre(d,cp,w,tau);
+			let bcp=cp, bw=w, btau=tau, be=ce, ni=0;
+			for (let i=0; i<15000 && T>0.01; i++) {
+				const f=T/2000;
+				let ncp=cp+(Math.random()*2-1)*5*f, nw=w+(Math.random()*2-1)*1000*f, ntau=tau+(Math.random()*2-1)*1*f;
+				if(ncp<50)ncp=50; if(nw<500)nw=500; if(ntau<0.5)ntau=0.5;
+				const ne=msre(d,ncp,nw,ntau);
+				if(ne<ce||Math.random()<Math.exp((ce-ne)/T)){cp=ncp;w=nw;tau=ntau;ce=ne;if(ce<be){bcp=cp;bw=w;btau=tau;be=ce;ni=0;}else ni++;}else ni++;
+				if(ni>=1000){T*=1.5;ni=0;}else T*=0.97;
+			}
+			return be>1000?null:{cp:bcp,wprime:bw,tau:btau,pmax:bcp+bw/btau,rmse:rmse(d,bcp,bw,btau)};
+		}
+
+		function fitModel(data, n) {
+			if(data.length<3) throw new Error('At least 3 points needed');
+			const ps=data.map(d=>d.power).sort((a,b)=>a-b);
+			const lo=ps[0]*0.9, hi=ps[Math.floor(ps.length/4)];
+			let best=null, be=Infinity;
+			for(let i=0;i<n;i++){const r=anneal(data,lo+Math.random()*(hi-lo),5000+30000*Math.random(),0.5+25*Math.random());if(r&&r.rmse<be){be=r.rmse;best=r;}}
+			if(!best) throw new Error('Fitting failed');
+			return best;
+		}
+
+		function predP(m,t){return t<=0?m.pmax:(m.wprime+m.cp*(t+m.tau))/(t+m.tau);}
+		function predVO2(m,w){return w>0?16.6+8.87*(predP(m,300)/w):0;}
+		function zones(m){return[
+			{name:'Recovery',c:'#6edea2',min:0*m.cp,max:0.6*m.cp},{name:'Endurance',c:'#66c2ff',min:0.6*m.cp,max:0.9*m.cp},
+			{name:'Tempo',c:'#4f95ff',min:0.9*m.cp,max:0.95*m.cp},{name:'Threshold',c:'#415dce',min:0.95*m.cp,max:1.05*m.cp},
+			{name:'VO2max',c:'#6834b0',min:1.05*m.cp,max:1.3*m.cp},{name:'Anaerobic',c:'#a62d8c',min:1.3*m.cp,max:0.8*m.pmax},
+			{name:'Neuro',c:'#d61f57',min:0.8*m.pmax,max:m.pmax}
+		];}
+
+		/* ==== OUTLIER ==== */
+		function totalFilter(d){
+			const s=new Set();
+			d.forEach((p,i)=>{if(p.power<=0||p.power>3000||p.time<=0)s.add(i);});
+			const mp=new Map();d.forEach((p,i)=>{if(mp.has(p.time)){const pv=mp.get(p.time);if(p.power>d[pv].power){s.add(pv);mp.set(p.time,i);}else s.add(i);}else mp.set(p.time,i);});
+			if(d.length>1){let f=[{...d[0],i:0}];for(let j=1;j<d.length;j++){if(s.has(j))continue;const c={...d[j],i:j};while(f.length>0&&c.power>f[f.length-1].power){s.add(f[f.length-1].i);f.pop();}if(f.length===0||c.power<=f[f.length-1].power)f.push(c);else s.add(j);}}
+			for(let j=1;j<d.length;j++){if(!s.has(j)&&!s.has(j-1)&&Math.abs(d[j].time-d[j-1].time)/d[j-1].time<0.2&&Math.abs(d[j].power-d[j-1].power)/d[j-1].power>0.2)s.add(j);}
+			return s;
+		}
+		function detectOL(m,d,t){
+			const s=new Set(m._ol||[]);
+			const r=d.map((p,i)=>s.has(i)?{i,v:0}:{i,v:Math.abs(predP(m,p.time)-p.power)/p.power});
+			const v=r.filter(x=>!s.has(x.i)).map(x=>x.v).sort((a,b)=>a-b);
+			const q1=v[Math.floor(v.length/4)]||0,q3=v[Math.floor(v.length*3/4)]||0,u=q3+t*(q3-q1);
+			r.forEach(x=>{if(!s.has(x.i)&&x.v>u)s.add(x.i);});return s;
+		}
+		function detectNMax(m,d,s){let c=0;d.forEach((p,i)=>{if(!s.has(i)){const e=predP(m,p.time);if((p.time>600&&p.power<0.9*e)||p.power<m.cp){s.add(i);c++;}}});return c;}
+		function fitWithOL(raw,n){
+			let os=totalFilter(raw),fd=raw.filter((_,i)=>!os.has(i));
+			if(fd.length<3)throw new Error('Not enough points after filtering');
+			let m=fitModel(fd,n);m._ol=os;
+			if(raw.length>20){let pc=0;for(let r=0;r<10;r++){os=detectOL(m,raw,3);const c=detectNMax(m,raw,os);const f=raw.filter((_,i)=>!os.has(i));if(f.length<3||c===pc)break;pc=c;m=fitModel(f,n);m._ol=os;}}
+			return m;
+		}
+		function buildCurve(m,raw){
+			const ts=new Set();for(let t=1;t<=7200;t*=1.15)ts.add(Math.round(t*10)/10);
+			for(let i=1;i<=60;i++)ts.add(i);for(let i=60;i<=120;i+=5)ts.add(i);for(let i=120;i<=300;i+=10)ts.add(i);
+			for(let i=300;i<=600;i+=30)ts.add(i);for(let i=600;i<=3600;i+=60)ts.add(i);for(let i=3600;i<=7200;i+=300)ts.add(i);
+			raw.forEach(p=>ts.add(p.time));
+			return[...ts].sort((a,b)=>a-b).map(t=>({time:t,power:predP(m,t)}));
+		}
+
+		/* ==== UI ==== */
+		const pc=document.getElementById('pointsContainer'),sc=document.getElementById('statsContent'),cb=document.getElementById('calculate');
+		let cd=null,ci=null;
+
+		function mkRow(){
+			const r=document.createElement('div');r.className='point-row';
+			r.innerHTML='<input type="number" class="time-input" step="0.1" placeholder="sec" /><input type="number" class="power-input" step="0.1" placeholder="W" /><button type="button" class="rm-btn off">&times;</button>';
+			r.querySelector('.rm-btn').addEventListener('click',function(){if(!this.classList.contains('off')){r.remove();updRm();save();}});
+			return r;
+		}
+		function addRow(){pc.appendChild(mkRow());updRm();}
+		function updRm(){const rs=pc.querySelectorAll('.point-row');rs.forEach(r=>r.querySelector('.rm-btn').classList.toggle('off',rs.length<=3));}
+
+		function save(){
+			const pts=[];pc.querySelectorAll('.point-row').forEach(r=>pts.push({time:r.querySelector('.time-input').value,power:r.querySelector('.power-input').value}));
+			localStorage.setItem('pmF',JSON.stringify({pts,w:document.getElementById('weight').value,n:document.getElementById('runtimes').value,od:document.getElementById('outlierDetect').checked}));
+		}
+		function load(){
+			try{const j=JSON.parse(localStorage.getItem('pmF'));
+				if(j){if(j.w)document.getElementById('weight').value=j.w;if(j.n)document.getElementById('runtimes').value=j.n;if(j.od!==undefined)document.getElementById('outlierDetect').checked=j.od;
+					if(j.pts&&j.pts.length){pc.innerHTML='';j.pts.forEach(p=>{const r=mkRow();if(p.time)r.querySelector('.time-input').value=p.time;if(p.power)r.querySelector('.power-input').value=p.power;pc.appendChild(r);});updRm();return;}}
+			}catch(e){localStorage.removeItem('pmF');}
+			for(let i=0;i<3;i++)addRow();
+		}
+
+		function collect(){
+			const pts=[];let ok=true;
+			pc.querySelectorAll('.point-row').forEach(r=>{
+				const ti=r.querySelector('.time-input'),pi=r.querySelector('.power-input');
+				const t=Number(ti.value),p=Number(pi.value);
+				if(!t||t<=0||!p||p<=0){ok=false;ti.classList.add('error');pi.classList.add('error');}
+				else{ti.classList.remove('error');pi.classList.remove('error');pts.push({time:t,power:p});}
+			});return ok?pts:null;
+		}
+
+		function fv(v){return v<10?v.toFixed(2):v<100?v.toFixed(1):v.toFixed(0);}
+
+		function display(m,raw){
+			const w=Number(document.getElementById('weight').value)||0;
+			const ol=m._ol||new Set();
+			const normal=raw.filter((_,i)=>!ol.has(i)),outliers=raw.filter((_,i)=>ol.has(i));
+
+			document.getElementById('heroMetrics').classList.add('visible');
+			document.getElementById('hCP').textContent=fv(m.cp);
+			document.getElementById('hW').textContent=fv(m.wprime);
+			document.getElementById('hPmax').textContent=fv(m.pmax);
+			document.getElementById('hVO2').textContent=w>0?fv(predVO2(m,w)):'--';
+			document.getElementById('hVO2u').textContent=w>0?'ml/kg/min':'enter weight';
+
+			cd={m,curve:buildCurve(m,raw),normal,outliers};
+			renderChart();
+
+			const zs=zones(m),maxW=m.pmax*1.1;
+			let zh='';
+			zs.forEach(z=>{const l=(z.min/maxW*100).toFixed(1),wd=((z.max-z.min)/maxW*100).toFixed(1);
+				zh+=`<div class="zone-row"><span class="zone-name">${z.name}</span><div class="zone-bar-track"><div class="zone-bar-fill" style="left:${l}%;width:${wd}%;background:${z.c}"></div></div><span class="zone-range">${z.min.toFixed(0)}-${z.max.toFixed(0)}</span></div>`;});
+			document.getElementById('zonesContent').innerHTML=zh;
+
+			let sh='<div class="stats-grid">';
+			sh+=`<div class="stat-item"><span class="stat-label" data-tip="Time constant: describes how quickly power decays from Pmax toward CP. Smaller = sharper sprint, larger = more sustained high power">Tau</span><span><span class="stat-value">${fv(m.tau)}</span><span class="stat-unit">s</span></span></div>`;
+			sh+=`<div class="stat-item"><span class="stat-label" data-tip="Root Mean Squared Error of the model fit. Lower = better agreement between predicted and observed power">RMSE</span><span><span class="stat-value">${fv(m.rmse)}</span></span></div>`;
+			if(w>0)sh+=`<div class="stat-item"><span class="stat-label" data-tip="Power-to-weight ratio (CP / body mass). Key metric for climbing performance">PWR</span><span><span class="stat-value">${fv(m.cp/w)}</span><span class="stat-unit">W/kg</span></span></div>`;
+			if(outliers.length)sh+=`<div class="stat-item"><span class="stat-label" data-tip="Data points flagged as abnormal by IQR-based residual analysis and non-maximal effort detection">Outliers</span><span><span class="stat-value">${outliers.length}</span><span class="stat-unit">${(outliers.length/raw.length*100).toFixed(1)}%</span></span></div>`;
+			sh+='</div>';sc.innerHTML=sh;
+		}
+
+		/* ==== CHART ==== */
+		function renderChart(){
+			if(!cd||typeof Chart==='undefined'){if(cd)setTimeout(renderChart,100);return;}
+			document.getElementById('chartEmpty').style.display='none';
+			document.getElementById('powerChart').style.display='block';
+			document.getElementById('chartFooter').style.display='flex';
+			const ctx=document.getElementById('powerChart').getContext('2d');
+			if(ci)ci.destroy();
+			const{curve,m,normal,outliers}=cd;
+			const dk=document.documentElement.getAttribute('data-theme')!=='light';
+			const gc=dk?'rgba(126,214,255,0.08)':'rgba(0,0,0,0.06)';
+			const tc=dk?'rgba(180,200,230,0.7)':'rgba(50,60,80,0.6)';
+			const lc=dk?'rgba(126,214,255,0.8)':'rgba(52,152,219,0.85)';
+			ci=new Chart(ctx,{type:'scatter',data:{datasets:[
+				{label:'Fitted',data:curve.map(p=>({x:p.time,y:p.power})),borderColor:lc,backgroundColor:'transparent',borderWidth:2,showLine:true,pointRadius:0},
+				{label:`CP ${fv(m.cp)}W`,data:[{x:1,y:m.cp},{x:3600,y:m.cp}],borderColor:dk?'rgba(200,210,230,0.3)':'rgba(0,0,0,0.2)',borderWidth:1,borderDash:[5,3],showLine:true,pointRadius:0},
+				{label:'Data',data:normal.map(p=>({x:p.time,y:p.power})),borderColor:'rgba(231,76,60,0.9)',backgroundColor:'rgba(231,76,60,0.7)',showLine:false,pointRadius:5,pointHoverRadius:7,pointStyle:'circle'},
+				...(outliers.length?[{label:'Outlier',data:outliers.map(p=>({x:p.time,y:p.power})),borderColor:'rgba(155,89,182,0.9)',backgroundColor:'rgba(155,89,182,0.7)',showLine:false,pointRadius:5,pointStyle:'triangle'}]:[]),
+			]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false,axis:'x'},
+				plugins:{legend:{display:true,position:'bottom',labels:{color:tc,usePointStyle:true,padding:14,font:{family:"'DM Mono',monospace",size:11}},onClick:null},
+					tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}W`}}},
+				scales:{
+					x:{type:'logarithmic',title:{display:true,text:'Time (s)',color:tc,font:{family:"'DM Mono',monospace",size:12}},max:3600,ticks:{color:tc,font:{family:"'DM Mono',monospace",size:10},callback:v=>{if([1,5,15].includes(v))return v+'s';if([60,300,600].includes(v))return v/60+'m';if(v===3600)return'1h';return'';}},grid:{color:gc}},
+					y:{title:{display:true,text:'Power (W)',color:tc,font:{family:"'DM Mono',monospace",size:12}},ticks:{color:tc,font:{family:"'DM Mono',monospace",size:10}},grid:{color:gc}}
+				}}});
+		}
+
+		document.getElementById('downloadPng').addEventListener('click',()=>{
+			if(!ci)return;const a=document.createElement('a');a.download=`power-curve-cp-${cd.m.cp.toFixed(0)}.png`;a.href=ci.canvas.toDataURL('image/png');a.click();
+		});
+
+		/* ==== EVENTS ==== */
+		document.getElementById('addPoint').addEventListener('click',()=>{addRow();save();});
+		document.getElementById('useExample').addEventListener('click',()=>{
+			pc.innerHTML='';
+			[{time:1,power:768},{time:5,power:697},{time:30,power:482},{time:60,power:337},{time:300,power:259},{time:600,power:236},{time:1200,power:233}].forEach(p=>{const r=mkRow();r.querySelector('.time-input').value=p.time;r.querySelector('.power-input').value=p.power;pc.appendChild(r);});
+			document.getElementById('runtimes').value=50000;document.getElementById('weight').value=70;updRm();save();
+		});
+
+		pc.addEventListener('input',save);document.getElementById('weight').addEventListener('input',save);
+		document.getElementById('runtimes').addEventListener('input',save);document.getElementById('outlierDetect').addEventListener('change',save);
+
+		cb.addEventListener('click',()=>{
+			const pts=collect();if(!pts)return;if(pts.length<3){alert('At least 3 points needed');return;}
+			const n=Number(document.getElementById('runtimes').value)||5000,od=document.getElementById('outlierDetect').checked;
+			const panel=document.getElementById('statsPanel');
+			const ov=document.createElement('div');ov.className='loading-overlay';ov.innerHTML='<div class="spinner"></div><div class="loading-text">Fitting...</div>';
+			panel.appendChild(ov);cb.disabled=true;
+			setTimeout(()=>{
+				try{pts.sort((a,b)=>a.time-b.time);
+					const m=od?fitWithOL(pts,n):(()=>{const r=fitModel(pts,n);r._ol=new Set();return r;})();
+					display(m,pts);save();
+				}catch(err){sc.innerHTML=`<p style="color:#e74c3c;font-size:0.85rem">${err.message}</p>`;}
+				finally{ov.remove();cb.disabled=false;}
+			},50);
+		});
+
+		document.getElementById('resetBtn').addEventListener('click',()=>{
+			if(!confirm('Reset all data?'))return;
+			pc.innerHTML='';for(let i=0;i<3;i++)addRow();
+			sc.innerHTML='<div class="empty-state"><div class="empty-icon">&#9881;</div><div class="empty-text">Enter data and calculate</div><div class="empty-hint">Need at least 3 power-time points</div></div>';
+			document.getElementById('weight').value='';document.getElementById('runtimes').value='5000';document.getElementById('outlierDetect').checked=true;
+			document.getElementById('heroMetrics').classList.remove('visible');
+			document.getElementById('chartEmpty').style.display='';
+			document.getElementById('powerChart').style.display='none';
+			document.getElementById('chartFooter').style.display='none';
+			document.getElementById('zonesContent').innerHTML='<div class="chart-empty" style="height:100px">Waiting for model</div>';
+			if(ci){ci.destroy();ci=null;}cd=null;localStorage.removeItem('pmF');
+		});
+
+		load();
+		</script>
+	</body>
+</html>

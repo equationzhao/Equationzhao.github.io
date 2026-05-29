@@ -9,99 +9,240 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 <html lang="en">
 
 <head>
-	<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	<BaseHead title={`About | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
 	<style>
-		.about-shell {
-			display: grid;
-			grid-template-columns: 1.2fr 1fr;
+		.about-header {
+			display: flex;
+			align-items: center;
 			gap: 1.2rem;
+			margin-bottom: 1.2rem;
 		}
-		.panel {
-			padding: 1.4rem;
+		.avatar {
+			width: 80px;
+			height: 80px;
+			border-radius: 50%;
+			border: 2px solid rgba(var(--accent), 0.4);
+		}
+		.about-header-text h1 {
+			font-size: clamp(1.4rem, 3vw, 1.8rem);
+			margin: 0;
+			color: rgb(var(--gray-dark));
+		}
+		.about-header-text p {
+			margin: 0.2rem 0 0;
+			font-size: 0.88rem;
+			color: rgba(var(--gray), 0.8);
+		}
+		.about-meta {
+			list-style: none;
+			padding: 0;
+			margin: 0 0 1.2rem;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.45rem;
+		}
+		.about-meta li {
+			padding: 0.3rem 0.65rem;
+			border-radius: 999px;
+			border: 1px solid rgba(var(--border), 0.22);
+			background: rgba(var(--surface-0), 0.5);
+			font-size: 0.85rem;
+			color: rgba(var(--gray), 0.85);
+		}
+
+		/* Rendered README */
+		.readme-panel {
+			padding: 1.8rem 2rem;
 			background: rgba(var(--surface-1), 0.72);
 			border: 1px solid rgba(var(--border), 0.28);
 			border-radius: var(--radius-lg);
 			box-shadow: var(--surface-shadow);
+			min-height: 120px;
+			position: relative;
 		}
-		.avatar {
-			width: 100px;
-			height: 100px;
-			border-radius: 50%;
-			border: 2px solid rgba(var(--accent), 0.5);
-		}
-		.meta-list {
-			list-style: none;
-			padding: 0;
-			margin: 0;
+		.readme-loading {
 			display: flex;
-			flex-wrap: wrap;
-			gap: 0.55rem;
+			align-items: center;
+			justify-content: center;
+			gap: 0.6rem;
+			padding: 2rem;
+			color: rgba(var(--gray-light), 0.6);
+			font-size: 0.88rem;
 		}
-		.meta-list li {
-			padding: 0.35rem 0.7rem;
-			border-radius: 999px;
-			border: 1px solid rgba(var(--border), 0.26);
-			background: rgba(var(--surface-0), 0.6);
-			font-size: 0.92rem;
+		.readme-loading .spinner {
+			width: 18px; height: 18px;
+			border: 2px solid rgba(var(--border), 0.3);
+			border-top-color: var(--accent);
+			border-radius: 50%;
+			animation: spin 0.7s linear infinite;
 		}
-		.stat-images img {
-			margin-bottom: 0.7rem;
+		@keyframes spin { to { transform: rotate(360deg); } }
+
+		.readme-panel h1,
+		.readme-panel h2,
+		.readme-panel h3,
+		.readme-panel h4 {
+			color: rgb(var(--gray-dark));
+			margin-top: 1.6rem;
+			margin-bottom: 0.6rem;
+		}
+		.readme-panel h1 { font-size: 1.5rem; }
+		.readme-panel h2 {
+			font-size: 1.2rem;
+			padding-bottom: 0.4rem;
+			border-bottom: 1px solid rgba(var(--border), 0.15);
+		}
+		.readme-panel h3 { font-size: 1.05rem; }
+		.readme-panel p {
+			color: rgba(var(--gray), 0.9);
+			line-height: 1.7;
+		}
+		.readme-panel a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+		.readme-panel a:hover { text-decoration: underline; }
+		.readme-panel ul, .readme-panel ol {
+			padding-left: 1.5rem;
+			color: rgba(var(--gray), 0.9);
+		}
+		.readme-panel li {
+			margin-bottom: 0.3rem;
+			line-height: 1.7;
+		}
+		.readme-panel img {
+			max-width: 100%;
 			border-radius: var(--radius-md);
+			margin: 0.6rem 0;
 		}
-		.powered {
+		.readme-panel table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 0.8rem 0;
+			font-size: 0.88rem;
+		}
+		.readme-panel th {
+			text-align: left;
+			padding: 0.45rem 0.7rem;
+			border-bottom: 2px solid rgba(var(--border), 0.25);
+			color: rgb(var(--gray-dark));
+			font-weight: 600;
+		}
+		.readme-panel td {
+			padding: 0.4rem 0.7rem;
+			border-bottom: 1px solid rgba(var(--border), 0.1);
+			color: rgba(var(--gray), 0.85);
+		}
+		.readme-panel tr:hover td {
+			background: rgba(var(--surface-0), 0.3);
+		}
+		.readme-panel blockquote {
+			margin: 0.6rem 0;
+			padding: 0.5rem 1rem;
+			border-left: 3px solid var(--accent);
+			background: rgba(var(--surface-0), 0.3);
+			border-radius: 0 var(--radius-md) var(--radius-md) 0;
+			color: rgba(var(--gray), 0.8);
+		}
+		.readme-panel code {
+			padding: 0.15rem 0.4rem;
+			background: rgba(var(--surface-0), 0.6);
+			border-radius: 4px;
+			font-size: 0.88em;
+			color: rgb(var(--gray-dark));
+		}
+		.readme-panel pre {
+			padding: 1rem;
+			background: rgba(var(--surface-0), 0.7);
+			border: 1px solid rgba(var(--border), 0.15);
+			border-radius: var(--radius-md);
+			overflow-x: auto;
+		}
+		.readme-panel pre code {
+			padding: 0;
+			background: none;
+		}
+		.readme-panel hr {
+			border: none;
+			border-top: 1px solid rgba(var(--border), 0.15);
+			margin: 1.5rem 0;
+		}
+
+		.readme-source {
 			text-align: right;
 			margin-top: 1rem;
+			font-size: 0.78rem;
 		}
-		@media (max-width: 900px) {
-			.about-shell {
-				grid-template-columns: 1fr;
-			}
+		.readme-source a {
+			color: rgba(var(--gray-light), 0.7);
+		}
+		.readme-source a:hover {
+			color: var(--accent);
 		}
 	</style>
 </head>
 
 <body>
-	<Header title={SITE_TITLE} />
+	<Header />
 	<main>
-		<section class="about-shell">
-			<div class="panel">
-				<h1>My blog</h1>
-				<p>
-					<img class="avatar" src="https://avatars.githubusercontent.com/u/75521101?v=4" alt="Equationzhao avatar" />
-				</p>
-				<p>欢迎来到 Eq 的个人网站</p>
-				<p><img src="https://wakatime.com/badge/user/90d4bbc2-a779-4bb1-a2a2-572e90fc4e29.svg" alt="Eq" /></p>
-				<h4>关于我</h4>
-				<p>一个无所事事的大四学牲</p>
+		<div class="about-header">
+			<img class="avatar" src="https://avatars.githubusercontent.com/u/75521101?v=4" alt="Equationzhao" />
+			<div class="about-header-text">
+				<h1>Equationzhao</h1>
+				<p>好的方程列出来有诗の美感</p>
 			</div>
-			<div class="panel">
-				<h5>属性</h5>
-				<ul class="meta-list">
-					<li><code>A炮</code></li>
-					<li><code>JM</code></li>
-					<li><code>byr.pt</code></li>
-					<li><code>双子座</code></li>
-					<li><code>Go Cpp</code></li>
-					<li><code>C-Pop R&B</code></li>
-					<li><code>University of Science and Technology Beijing</code></li>
-					<li><code>Arch/MacOS/Windows</code></li>
-				</ul>
-				<div class="stat-images">
-					<img src="https://github-readme-stats-git-masterrstaa-rickstaa.vercel.app/api?username=Equationzhao" alt="github stats" loading="lazy" />
-					<img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=Equationzhao" alt="profile summary" loading="lazy" />
-					<img src="https://byr.pt/mybar.php?userid=333414&bgpic=6" alt="byr stats" loading="lazy" />
-				</div>
-				<p class="powered">
-					<strong>
-						Powered by <a href="https://astro.build">Astro</a><br />
-						评论系统 <a href="https://giscus.app">giscus</a><br />
-						文字的力量 <a href="https://hitokoto.cn">一言</a><br />
-					</strong>
-				</p>
-			</div>
-		</section>
+		</div>
+
+		<ul class="about-meta">
+			<li>Go / C++</li>
+			<li>Amateur Cyclist</li>
+			<li>USTB</li>
+			<li>Arch / macOS</li>
+			<li>Shanghai & Hong Kong</li>
+		</ul>
+
+		<div class="readme-panel" id="readmeContent">
+			<div class="readme-loading"><div class="spinner"></div> Loading from GitHub...</div>
+		</div>
+
+		<p class="readme-source">
+			Source: <a href="https://github.com/Equationzhao/Equationzhao" target="_blank">github.com/Equationzhao/Equationzhao</a>
+		</p>
 	</main>
 	<Footer />
+
+	<script is:inline>
+	(function () {
+		const RAW_URL = 'https://raw.githubusercontent.com/Equationzhao/Equationzhao/main/README.md';
+		const REPO_BASE = 'https://raw.githubusercontent.com/Equationzhao/Equationzhao/main/';
+		const container = document.getElementById('readmeContent');
+
+		function waitForMarked(cb) {
+			if (typeof marked !== 'undefined') { cb(); return; }
+			setTimeout(function () { waitForMarked(cb); }, 100);
+		}
+
+		fetch(RAW_URL)
+			.then(function (r) {
+				if (!r.ok) throw new Error('HTTP ' + r.status);
+				return r.text();
+			})
+			.then(function (md) {
+				// Convert relative image paths to absolute
+				md = md.replace(/!\[([^\]]*)\]\((?!https?:\/\/)([^)]+)\)/g, function (alt, _, src) {
+					return '![' + alt + '](' + REPO_BASE + src + ')';
+				});
+
+				waitForMarked(function () {
+					container.innerHTML = marked.parse(md);
+				});
+			})
+			.catch(function (err) {
+				container.innerHTML = '<p style="color:rgba(var(--gray-light),0.6)">Failed to load: ' + err.message + '</p>';
+			});
+	})();
+	</script>
 </body>
 
 </html>

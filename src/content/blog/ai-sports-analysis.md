@@ -2,7 +2,7 @@
 title: '为什么绝大多数 AI 运动数据分析软件，都设计得很烂？'
 pubDate: 2026-06-02
 description: '不是在分析运动员，而是在给训练日志写小作文。'
-heroImage: 'https://bingw.jasonzeng.dev?index=32'
+heroImage: '/ai-sports-analysis-cover.png'
 ---
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />

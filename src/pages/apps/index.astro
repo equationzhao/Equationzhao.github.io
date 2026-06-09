@@ -17,6 +17,13 @@ const apps = [
 		href: '/apps/power-model',
 		icon: '🚴',
 	},
+	{
+		title: 'Performance Predict',
+		description: 'Cycling segment performance predictor, deployed on GitHub Pages',
+		href: 'https://equationzhao.github.io/performance-predict/',
+		icon: '📈',
+		external: true,
+	},
 ];
 ---
 
@@ -93,7 +100,7 @@ const apps = [
 			</div>
 			<div class="apps-grid">
 				{apps.map(app => (
-					<a class="app-card" href={app.href} rel="prefetch-intent">
+					<a class="app-card" href={app.href} rel={app.external ? 'noopener noreferrer' : 'prefetch-intent'} target={app.external ? '_blank' : undefined}>
 						<span class="app-icon">{app.icon}</span>
 						<div class="app-info">
 							<h2>{app.title}</h2>

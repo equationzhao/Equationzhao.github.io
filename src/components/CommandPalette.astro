@@ -1,0 +1,634 @@
+---
+import { getCollection } from 'astro:content';
+import { apps } from '../data/apps';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const postItems = posts.map((post) => {
+	const slug = post.id.replace(/\.md$/, '');
+	return {
+		id: `post:${slug}`,
+		group: 'Posts',
+		title: post.data.title,
+		description: post.data.description,
+		href: `/blog/${slug}/`,
+		date: new Date(post.data.pubDate).toISOString().slice(0, 10),
+		keywords: [slug],
+	};
+});
+
+const appItems = apps.map((app) => ({
+	id: `app:${app.href}`,
+	group: 'Apps',
+	title: app.title,
+	description: app.description,
+	href: app.href,
+	external: app.external ?? false,
+	icon: app.icon,
+	keywords: [app.title, app.description],
+}));
+
+const pageItems = [
+	{
+		id: 'page:home',
+		group: 'Pages',
+		title: 'Home',
+		description: 'Back to the site homepage',
+		href: '/',
+		keywords: ['index', 'start'],
+	},
+	{
+		id: 'page:posts',
+		group: 'Pages',
+		title: 'Posts',
+		description: 'Browse all blog posts',
+		href: '/blog',
+		keywords: ['blog', 'articles'],
+	},
+	{
+		id: 'page:apps',
+		group: 'Pages',
+		title: 'Apps',
+		description: 'Open the app collection',
+		href: '/apps',
+		keywords: ['tools'],
+	},
+	{
+		id: 'page:about',
+		group: 'Pages',
+		title: 'About',
+		description: 'Read the about page',
+		href: '/about',
+		keywords: ['profile'],
+	},
+	{
+		id: 'page:rss',
+		group: 'Pages',
+		title: 'RSS',
+		description: 'Open the site feed',
+		href: '/rss.xml',
+		external: true,
+		keywords: ['feed'],
+	},
+	{
+		id: 'page:github',
+		group: 'Pages',
+		title: 'GitHub',
+		description: 'Open Equationzhao on GitHub',
+		href: 'https://github.com/Equationzhao',
+		external: true,
+		keywords: ['code', 'source'],
+	},
+	{
+		id: 'page:resume',
+		group: 'Pages',
+		title: 'Resume',
+		description: 'Open the public resume',
+		href: 'https://rxresu.me/equationzhao/equationzhao',
+		external: true,
+		keywords: ['hire', 'cv'],
+	},
+];
+
+const actionItems = [
+	{
+		id: 'action:copy-url',
+		group: 'Actions',
+		title: 'Copy current page link',
+		description: 'Copy this page URL to the clipboard',
+		action: 'copy-url',
+		keywords: ['copy', 'url', 'link'],
+	},
+	{
+		id: 'action:random-post',
+		group: 'Actions',
+		title: 'Random post',
+		description: 'Open a random article',
+		action: 'random-post',
+		keywords: ['random', 'article', 'blog'],
+	},
+];
+
+const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
+---
+
+<div class="command-palette-root" data-command-palette-root>
+	<button class="command-trigger" type="button" aria-label="Open command palette" aria-haspopup="dialog" data-command-trigger>
+		<svg viewBox="0 0 24 24" aria-hidden="true">
+			<path d="m21 21-4.35-4.35" />
+			<circle cx="11" cy="11" r="6.5" />
+		</svg>
+	</button>
+
+	<dialog class="command-dialog" aria-label="Command palette" data-command-dialog>
+		<div class="command-panel">
+			<div class="command-input-shell">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path d="m21 21-4.35-4.35" />
+					<circle cx="11" cy="11" r="6.5" />
+				</svg>
+				<input
+					type="search"
+					class="command-input"
+					placeholder="Search posts, apps, pages, actions"
+					autocomplete="off"
+					spellcheck="false"
+					aria-label="Search commands"
+					aria-controls="command-results"
+					data-command-input
+				/>
+			</div>
+			<div class="command-results" id="command-results" role="listbox" data-command-results></div>
+			<p class="command-empty" hidden data-command-empty>No matching commands</p>
+		</div>
+	</dialog>
+</div>
+
+<script is:inline define:vars={{ commandItems }}>
+	(function () {
+		window.__eqCommandItems = commandItems;
+
+		function isDesktop() {
+			return !window.matchMedia('(max-width: 720px)').matches;
+		}
+
+		function normalize(value) {
+			return String(value || '').trim().toLowerCase();
+		}
+
+		function searchText(item) {
+			return normalize([
+				item.title,
+				item.description,
+				item.date,
+				(item.keywords || []).join(' '),
+			].join(' '));
+		}
+
+		function scoreItem(item, query) {
+			if (!query) {
+				var emptyRank = { Pages: 400, Apps: 300, Actions: 200, Posts: 100 };
+				return (emptyRank[item.group] || 0) + (item.group === 'Posts' ? 0 : 20);
+			}
+
+			var title = normalize(item.title);
+			var description = normalize(item.description);
+			var haystack = searchText(item);
+			var score = 0;
+
+			if (title === query) score += 1000;
+			if (title.indexOf(query) === 0) score += 800;
+			if (title.indexOf(query) !== -1) score += 600;
+			if (description.indexOf(query) !== -1) score += 300;
+			if (haystack.indexOf(query) !== -1) score += 200;
+
+			return score;
+		}
+
+		function groupRank(group) {
+			var ranks = { Posts: 1, Apps: 2, Pages: 3, Actions: 4 };
+			return ranks[group] || 9;
+		}
+
+		function filterItems(query) {
+			var q = normalize(query);
+			return (window.__eqCommandItems || [])
+				.map(function (item, index) {
+					return { item: item, index: index, score: scoreItem(item, q) };
+				})
+				.filter(function (entry) {
+					return entry.score > 0;
+				})
+				.sort(function (a, b) {
+					if (b.score !== a.score) return b.score - a.score;
+					if (groupRank(a.item.group) !== groupRank(b.item.group)) {
+						return groupRank(a.item.group) - groupRank(b.item.group);
+					}
+					return a.index - b.index;
+				})
+				.slice(0, q ? 18 : 16)
+				.map(function (entry) {
+					return entry.item;
+				});
+		}
+
+		function buildResult(item, index, active) {
+			var row = document.createElement('button');
+			row.type = 'button';
+			row.className = 'command-result' + (active ? ' is-active' : '');
+			row.setAttribute('role', 'option');
+			row.setAttribute('aria-selected', active ? 'true' : 'false');
+			row.id = 'command-result-' + index;
+			row.dataset.commandIndex = String(index);
+
+			var icon = document.createElement('span');
+			icon.className = 'command-result-icon';
+			icon.textContent = item.icon || (item.action ? '>' : item.external ? '↗' : '•');
+
+			var copy = document.createElement('span');
+			copy.className = 'command-result-copy';
+
+			var title = document.createElement('span');
+			title.className = 'command-result-title';
+			title.textContent = item.title;
+
+			var description = document.createElement('span');
+			description.className = 'command-result-description';
+			description.textContent = item.description || item.date || '';
+
+			copy.append(title, description);
+			row.append(icon, copy);
+			return row;
+		}
+
+		function executeItem(item, newTab) {
+			if (!item) return;
+
+			if (item.action === 'copy-url') {
+				if (navigator.clipboard) navigator.clipboard.writeText(window.location.href);
+				closePalette();
+				return;
+			}
+
+			if (item.action === 'random-post') {
+				var posts = (window.__eqCommandItems || []).filter(function (candidate) {
+					return candidate.group === 'Posts' && candidate.href;
+				});
+				var randomPost = posts[Math.floor(Math.random() * posts.length)];
+				if (randomPost) window.location.href = randomPost.href;
+				closePalette();
+				return;
+			}
+
+			if (!item.href) return;
+			if (newTab || item.external) {
+				window.open(item.href, '_blank', 'noopener,noreferrer');
+				closePalette();
+			} else {
+				window.location.href = item.href;
+				closePalette();
+			}
+		}
+
+		function render(root, items, activeIndex) {
+			var results = root.querySelector('[data-command-results]');
+			var empty = root.querySelector('[data-command-empty]');
+			var input = root.querySelector('[data-command-input]');
+			results.innerHTML = '';
+
+			if (!items.length) {
+				empty.hidden = false;
+				input.removeAttribute('aria-activedescendant');
+				return;
+			}
+
+			empty.hidden = true;
+			var currentGroup = '';
+			var groupCounts = items.reduce(function (counts, item) {
+				counts[item.group] = (counts[item.group] || 0) + 1;
+				return counts;
+			}, {});
+			items.forEach(function (item, index) {
+				if (item.group !== currentGroup) {
+					currentGroup = item.group;
+					var heading = document.createElement('div');
+					heading.className = 'command-group-label';
+					var prompt = document.createElement('span');
+					prompt.className = 'command-group-prompt';
+					prompt.textContent = '>';
+					var name = document.createElement('span');
+					name.className = 'command-group-name';
+					name.textContent = currentGroup.toLowerCase();
+					var count = document.createElement('span');
+					count.className = 'command-group-count';
+					count.textContent = '/' + String(groupCounts[currentGroup]);
+					var line = document.createElement('span');
+					line.className = 'command-group-line';
+					heading.append(prompt, name, count, line);
+					results.appendChild(heading);
+				}
+				results.appendChild(buildResult(item, index, index === activeIndex));
+			});
+			input.setAttribute('aria-activedescendant', 'command-result-' + activeIndex);
+		}
+
+		function closePalette() {
+			var dialog = document.querySelector('[data-command-dialog]');
+			if (dialog && dialog.open) dialog.close();
+		}
+
+		function openPalette() {
+			if (!isDesktop()) return;
+			window.__eqInitCommandPalette();
+			var root = document.querySelector('[data-command-palette-root]');
+			var dialog = root && root.querySelector('[data-command-dialog]');
+			var input = root && root.querySelector('[data-command-input]');
+			if (!dialog || !input) return;
+			root.__eqCommandFiltered = filterItems('');
+			root.__eqCommandActiveIndex = 0;
+			render(root, root.__eqCommandFiltered, 0);
+			if (!dialog.open) dialog.showModal();
+			input.value = '';
+			window.setTimeout(function () {
+				input.focus();
+			}, 0);
+		}
+
+		window.__eqOpenCommandPalette = openPalette;
+
+		window.__eqInitCommandPalette = function () {
+			var root = document.querySelector('[data-command-palette-root]');
+			if (!root || root.dataset.commandReady === 'true') return;
+			root.dataset.commandReady = 'true';
+			root.__eqCommandFiltered = filterItems('');
+			root.__eqCommandActiveIndex = 0;
+
+			var trigger = root.querySelector('[data-command-trigger]');
+			var dialog = root.querySelector('[data-command-dialog]');
+			var input = root.querySelector('[data-command-input]');
+			var results = root.querySelector('[data-command-results]');
+			if (!trigger || !dialog || !input || !results) return;
+
+			trigger.addEventListener('click', openPalette);
+			dialog.addEventListener('click', function (event) {
+				if (event.target === dialog) closePalette();
+			});
+
+			input.addEventListener('input', function () {
+				root.__eqCommandFiltered = filterItems(input.value);
+				root.__eqCommandActiveIndex = 0;
+				render(root, root.__eqCommandFiltered, root.__eqCommandActiveIndex);
+			});
+
+			input.addEventListener('keydown', function (event) {
+				var filtered = root.__eqCommandFiltered || [];
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					closePalette();
+					return;
+				}
+				if (event.key === 'ArrowDown') {
+					event.preventDefault();
+					root.__eqCommandActiveIndex = Math.min(root.__eqCommandActiveIndex + 1, filtered.length - 1);
+					render(root, filtered, root.__eqCommandActiveIndex);
+				}
+				if (event.key === 'ArrowUp') {
+					event.preventDefault();
+					root.__eqCommandActiveIndex = Math.max(root.__eqCommandActiveIndex - 1, 0);
+					render(root, filtered, root.__eqCommandActiveIndex);
+				}
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					executeItem(filtered[root.__eqCommandActiveIndex], event.metaKey || event.ctrlKey);
+				}
+			});
+
+			results.addEventListener('click', function (event) {
+				var target = event.target;
+				var row = target && target.closest ? target.closest('[data-command-index]') : null;
+				if (!row) return;
+				executeItem((root.__eqCommandFiltered || [])[Number(row.dataset.commandIndex)], false);
+			});
+
+			results.addEventListener('mousemove', function (event) {
+				var target = event.target;
+				var row = target && target.closest ? target.closest('[data-command-index]') : null;
+				if (!row) return;
+				var nextIndex = Number(row.dataset.commandIndex);
+				if (nextIndex === root.__eqCommandActiveIndex) return;
+				root.__eqCommandActiveIndex = nextIndex;
+				render(root, root.__eqCommandFiltered || [], root.__eqCommandActiveIndex);
+			});
+		};
+
+		if (!window.__eqCommandGlobalReady) {
+			window.__eqCommandGlobalReady = true;
+			document.addEventListener('keydown', function (event) {
+				if (event.key === 'Escape') {
+					var openDialog = document.querySelector('[data-command-dialog][open]');
+					if (openDialog) {
+						event.preventDefault();
+						closePalette();
+					}
+					return;
+				}
+				if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+					event.preventDefault();
+					var dialog = document.querySelector('[data-command-dialog]');
+					if (dialog && dialog.open) closePalette();
+					else window.__eqOpenCommandPalette();
+				}
+			});
+			document.addEventListener('astro:page-load', function () {
+				if (typeof window.__eqInitCommandPalette === 'function') window.__eqInitCommandPalette();
+			});
+		}
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', window.__eqInitCommandPalette, { once: true });
+		} else {
+			window.__eqInitCommandPalette();
+		}
+	})();
+</script>
+
+<style>
+	.command-trigger {
+		position: fixed;
+		top: 46vh;
+		right: 0;
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 42px;
+		height: 58px;
+		border: 1px solid rgba(var(--border), 0.32);
+		border-right: 0;
+		border-radius: 8px 0 0 8px;
+		background: rgba(var(--surface-1), 0.82);
+		color: rgb(var(--gray));
+		box-shadow: -10px 10px 28px rgba(2, 5, 14, 0.32);
+		backdrop-filter: blur(14px);
+		cursor: pointer;
+		transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+	}
+
+	.command-trigger:hover,
+	.command-trigger:focus-visible {
+		color: rgb(var(--accent));
+		border-color: rgba(var(--accent), 0.55);
+		transform: translateX(-2px);
+		outline: none;
+	}
+
+	.command-trigger svg {
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+	}
+
+	.command-dialog {
+		width: min(720px, calc(100vw - 2rem));
+		max-height: min(74vh, 720px);
+		padding: 0;
+		border: 1px solid rgba(var(--border), 0.34);
+		border-radius: var(--radius-lg);
+		background: transparent;
+		color: rgb(var(--gray-dark));
+		box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+		overflow: hidden;
+	}
+
+	.command-dialog::backdrop {
+		background: rgba(2, 5, 14, 0.66);
+		backdrop-filter: blur(10px);
+	}
+
+	.command-panel {
+		background:
+			linear-gradient(180deg, rgba(var(--surface-1), 0.96), rgba(var(--surface-0), 0.96)),
+			rgba(var(--surface-1), 0.96);
+	}
+
+	.command-input-shell {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		padding: 1rem 1.1rem;
+		border-bottom: 1px solid rgba(var(--border), 0.24);
+	}
+
+	.command-input-shell svg {
+		width: 19px;
+		height: 19px;
+		flex: 0 0 auto;
+		fill: none;
+		stroke: rgb(var(--gray-light));
+		stroke-width: 2;
+		stroke-linecap: round;
+	}
+
+	.command-input {
+		width: 100%;
+		min-width: 0;
+		border: 0;
+		background: transparent;
+		color: rgb(var(--gray-dark));
+		font: 500 1rem 'Atkinson', sans-serif;
+		outline: none;
+	}
+
+	.command-input::placeholder {
+		color: rgba(var(--gray-light), 0.72);
+	}
+
+	.command-results {
+		max-height: min(60vh, 580px);
+		padding: 0.55rem;
+		overflow-y: auto;
+	}
+
+	:global(.command-group-label) {
+		display: grid;
+		grid-template-columns: auto auto auto 1fr;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0.85rem 0.62rem 0.35rem;
+		color: rgba(var(--gray), 0.78);
+		font: 600 0.72rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	}
+
+	:global(.command-group-prompt) {
+		color: rgb(var(--accent));
+	}
+
+	:global(.command-group-name) {
+		color: rgba(var(--gray-dark), 0.82);
+	}
+
+	:global(.command-group-count) {
+		color: rgba(var(--gray-light), 0.78);
+	}
+
+	:global(.command-group-line) {
+		height: 1px;
+		background: linear-gradient(90deg, rgba(var(--border), 0.34), transparent);
+	}
+
+	:global(.command-result) {
+		display: grid;
+		grid-template-columns: 34px 1fr;
+		gap: 0.75rem;
+		align-items: center;
+		width: 100%;
+		padding: 0.68rem 0.7rem;
+		border: 1px solid transparent;
+		border-radius: 8px;
+		background: transparent;
+		color: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	:global(.command-result.is-active) {
+		background: rgba(var(--accent-strong), 0.18);
+		border-color: rgba(var(--accent), 0.36);
+	}
+
+	:global(.command-result-icon) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 8px;
+		background: rgba(var(--surface-1), 0.72);
+		color: rgb(var(--accent));
+		font-size: 0.9rem;
+	}
+
+	:global(.command-result-copy) {
+		display: grid;
+		gap: 0.2rem;
+		min-width: 0;
+	}
+
+	:global(.command-result-title),
+	:global(.command-result-description) {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	:global(.command-result-title) {
+		color: rgb(237, 243, 255);
+		font-size: 0.95rem;
+		font-weight: 700;
+	}
+
+	:global(.command-result-description) {
+		color: rgba(var(--gray), 0.85);
+		font-size: 0.82rem;
+	}
+
+	.command-empty {
+		margin: 0;
+		padding: 2.4rem 1rem;
+		color: rgb(var(--gray-light));
+		text-align: center;
+	}
+
+	@media (max-width: 720px) {
+		.command-trigger,
+		.command-dialog {
+			display: none;
+		}
+	}
+</style>

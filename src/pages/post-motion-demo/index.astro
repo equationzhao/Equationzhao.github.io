@@ -1,0 +1,157 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+
+const variants = [
+	{
+		id: 'v1',
+		name: 'Reading Stack',
+		description: '纸张栈。温和、阅读优先，当前文章像从桌面上被抽出来。',
+	},
+	{
+		id: 'v2',
+		name: 'Magazine File',
+		description: '杂志大卡。更强的版面感，图片作为封面材料，不做装饰叠加。',
+	},
+	{
+		id: 'v3',
+		name: 'Inbox Review',
+		description: '紧凑队列。适合快速扫标题，中心项轻微展开。',
+	},
+	{
+		id: 'v4',
+		name: 'Spine Shelf',
+		description: '书脊架。文章像从书架抽出，结构更硬一些。',
+	},
+	{
+		id: 'v5',
+		name: 'Plain Index',
+		description: '文字优先。最低装饰，图片只是很小的辅助缩略图。',
+	},
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title="Post Motion Variants | Eq's Blog"
+			description="Five redesigned post motion directions."
+		/>
+		<style>
+			main {
+				width: min(1080px, calc(100% - 2rem));
+				padding: clamp(3rem, 8vw, 7rem) 0;
+			}
+
+			.variant-hero {
+				margin-bottom: clamp(2rem, 6vw, 5rem);
+			}
+
+			.variant-hero p {
+				width: fit-content;
+				margin: 0 0 1rem;
+				padding: 0.4rem 0.65rem;
+				border: 1px solid rgba(var(--accent), 0.38);
+				border-radius: 999px;
+				color: rgb(var(--accent));
+				font: 800 0.74rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+			}
+
+			.variant-hero h1 {
+				max-width: 860px;
+				margin: 0;
+				font-size: clamp(2.6rem, 9vw, 7rem);
+				letter-spacing: -0.08em;
+				line-height: 0.88;
+			}
+
+			.variant-grid {
+				display: grid;
+				grid-template-columns: repeat(5, minmax(0, 1fr));
+				gap: 1rem;
+			}
+
+			.variant-card {
+				display: grid;
+				min-height: 280px;
+				padding: 1rem;
+				border: 1px solid rgba(var(--border), 0.34);
+				border-radius: var(--radius-lg);
+				background:
+					linear-gradient(135deg, rgba(var(--surface-1), 0.92), rgba(var(--surface-0), 0.72)),
+					radial-gradient(circle at 16% 12%, rgba(var(--accent), 0.12), transparent 70%);
+				box-shadow: var(--box-shadow);
+				color: rgb(var(--gray-dark));
+				text-decoration: none;
+				transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+			}
+
+			.variant-card:hover,
+			.variant-card:focus-visible {
+				border-color: rgba(var(--accent), 0.56);
+				box-shadow: var(--surface-shadow);
+				transform: translateY(-4px);
+				outline: none;
+			}
+
+			.variant-card b {
+				color: rgb(var(--accent));
+				font: 900 0.8rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+			}
+
+			.variant-card h2 {
+				margin: auto 0 0.85rem;
+				font-size: clamp(1.35rem, 2.5vw, 2.1rem);
+				letter-spacing: -0.055em;
+				line-height: 0.98;
+			}
+
+			.variant-card p {
+				margin: 0;
+				color: rgba(var(--gray), 0.92);
+				font-size: 0.95rem;
+				line-height: 1.65;
+			}
+
+			@media (max-width: 980px) {
+				.variant-grid {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+
+			@media (max-width: 620px) {
+				.variant-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="variant-hero">
+				<p>post motion redesigns</p>
+				<h1>Five directions. No overlays. Pick the least ugly one.</h1>
+			</section>
+
+			<section class="variant-grid" aria-label="Post motion variants">
+				{
+					variants.map((variant) => (
+						<a class="variant-card" href={`/post-motion-demo-${variant.id}/`}>
+							<b>{variant.id}</b>
+							<h2>{variant.name}</h2>
+							<p>{variant.description}</p>
+						</a>
+					))
+				}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

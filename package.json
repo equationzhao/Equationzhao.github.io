@@ -10,12 +10,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.6",
+    "@astrojs/mdx": "^7.0.0",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
-    "astro": "^6.4.8",
-    "astro-purgecss": "^6.0.1",
-    "astro-seo-meta": "^6.0.0",
+    "astro": "^7.0.2",
+    "astro-purgecss": "^7.0.0",
+    "astro-seo-meta": "^7.0.0",
     "mdast-util-to-string": "^4.0.0",
     "pdfjs": "^2.5.2",
     "purgecss": "^8.0.0",

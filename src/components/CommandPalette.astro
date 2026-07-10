@@ -1,21 +1,19 @@
 ---
-import { getCollection } from 'astro:content';
 import { apps } from '../data/apps';
+import { getBlogPostDescription, getBlogPostPath, getBlogPostSlug, getPublishedBlogPosts } from '../lib/blog';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const posts = await getPublishedBlogPosts();
 
 const postItems = posts.map((post) => {
-	const slug = post.id.replace(/\.md$/, '');
+	const href = getBlogPostPath(post.id);
 	return {
-		id: `post:${slug}`,
+		id: `post:${getBlogPostSlug(post.id)}`,
 		group: 'Posts',
 		title: post.data.title,
-		description: post.data.description,
-		href: `/blog/${slug}/`,
+		description: getBlogPostDescription(post),
+		href,
 		date: new Date(post.data.pubDate).toISOString().slice(0, 10),
-		keywords: [slug],
+		keywords: [post.id],
 	};
 });
 

@@ -1,14 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getBlogPostPath, getPublishedBlogPosts } from '../../lib/blog';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const posts = await getPublishedBlogPosts();
 ---
 
 <!DOCTYPE html>
@@ -174,7 +172,7 @@ const posts = (await getCollection('blog')).sort(
 					{						
 						posts.map((post, index) => (
 							<li>
-								<a href={`/blog/${post.id.replace(/\.md$/, '')}/`} rel = prefetch-intent>
+								<a href={getBlogPostPath(post.id)} rel = prefetch-intent>
 									<div class="hero-image">
 										<img width={510} height={205} src={post.data.heroImage} alt={post.data.title} loading={index === 0 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} />
 									</div>

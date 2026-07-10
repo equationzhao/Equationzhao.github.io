@@ -1,14 +1,13 @@
 ---
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { render, type CollectionEntry } from 'astro:content';
 import Comment from '../../components/Comment.astro';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { getBlogPostSlug, getPublishedBlogPosts } from '../../lib/blog';
 
 export async function getStaticPaths() {
-	const posts = (await getCollection('blog')).sort(
-		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-	);
+	const posts = await getPublishedBlogPosts();
 	return posts.map((post, index) => ({
-		params: { slug: post.id.replace(/\.md$/, '') },
+		params: { slug: getBlogPostSlug(post.id) },
 		props: {
 			post,
 			prev: index < posts.length - 1 ? posts[index + 1] : null,

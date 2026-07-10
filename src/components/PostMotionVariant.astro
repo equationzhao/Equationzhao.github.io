@@ -1,9 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from './BaseHead.astro';
 import Footer from './Footer.astro';
 import FormattedDate from './FormattedDate.astro';
 import Header from './Header.astro';
+import { getBlogPostSlug, getPublishedBlogPosts } from '../lib/blog';
 
 type VariantId = 'v1' | 'v2' | 'v3' | 'v4' | 'v5';
 
@@ -56,9 +56,7 @@ const variantConfigs: Record<VariantId, VariantConfig> = {
 const variant = (Astro.props.variant || 'v1') as VariantId;
 const config = variantConfigs[variant] || variantConfigs.v1;
 const variants = Object.values(variantConfigs);
-const rawPosts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const rawPosts = await getPublishedBlogPosts();
 
 function classifyPost(post: (typeof rawPosts)[number]) {
 	const text = `${post.id} ${post.data.title} ${post.data.description}`.toLowerCase();
@@ -72,7 +70,7 @@ const posts = rawPosts.map((post, index) => ({
 	post,
 	index,
 	indexLabel: String(index + 1).padStart(2, '0'),
-	slug: post.id.replace(/\.md$/, ''),
+	slug: getBlogPostSlug(post.id),
 	kind: classifyPost(post),
 }));
 ---

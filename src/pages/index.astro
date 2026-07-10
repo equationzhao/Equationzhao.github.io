@@ -4,62 +4,654 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import wolf from '../content/img/index-wolf.png';
+import bikehomeCover from '../assets/home-gallery/bikehome-cover.webp';
+import cornerTraining from '../assets/home-gallery/corner-training.webp';
+import forestGroup from '../assets/home-gallery/forest-group.webp';
+import summitSelfie from '../assets/home-gallery/summit-selfie.webp';
+import zhoushanRide from '../assets/home-gallery/zhoushan-ride.webp';
+
+const gallery = [
+	{
+		src: summitSelfie,
+		alt: '骑行者在山顶公路旁与连绵群山自拍',
+		label: 'Climb',
+		title: '山巅之后',
+		position: 'center 56%',
+	},
+	{
+		src: bikehomeCover,
+		alt: '以公路骑行为主题的 Bikehome Momentum 杂志封面',
+		label: 'Cover',
+		title: 'Momentum',
+		position: 'center center',
+		fit: 'contain',
+	},
+	{
+		src: zhoushanRide,
+		alt: '环舟山骑游大会中正在爬坡的公路车骑行者',
+		label: 'Event',
+		title: '环舟山 2026',
+		position: 'center 63%',
+	},
+	{
+		src: cornerTraining,
+		alt: '穿粉色骑行服的骑行者独自通过山路弯道',
+		label: 'Corners',
+		title: '过弯',
+		position: 'center center',
+	},
+	{
+		src: forestGroup,
+		alt: '三名骑行者沿着潮湿的林间公路向前骑行',
+		label: 'Together',
+		title: '雨林骑行',
+		position: 'center 62%',
+	},
+];
 ---
 
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} image={summitSelfie.src} />
 	</head>
 	<body>
 		<Header title={SITE_TITLE} />
 		<main>
 			<section class="hero">
-				<h1>Hi there!<br />你好</h1>
-				<p>
-					欢迎来到 Eq 的个人网站。这里是我的个人博客，我会在这里分享学习与生活中的内容。
-				</p>
-				<p class="hero-cta"><strong>Have fun coding!</strong></p>
+				<div>
+					<p class="hero-kicker">EQUATIONZHAO / PERSONAL LOG</p>
+					<h1>Hi there!<br />你好</h1>
+				</div>
+				<div class="hero-copy">
+					<p>欢迎来到 Eq 的个人网站。这里是我的个人博客，我会在这里分享学习与生活中的内容。</p>
+					<p class="hero-cta"><strong>Have fun cycling!</strong></p>
+				</div>
 			</section>
-			<section class="hero-card">
-				<Image src={wolf} alt="my wolf" width={800} quality={75} loading="eager" fetchpriority="high" />
-				<p class="caption">cattie</p>
+
+			<section class="ride-gallery" data-ride-gallery aria-labelledby="ride-gallery-title">
+				<header class="gallery-heading">
+					<div>
+						<p class="gallery-kicker">RIDE ARCHIVE / 骑行切片</p>
+						<h2 id="ride-gallery-title">On the road.</h2>
+					</div>
+					<div class="gallery-status" aria-label="画廊状态">
+						<output class="gallery-count" data-gallery-count aria-live="polite">01 — {String(gallery.length).padStart(2, '0')}</output>
+						<div class="gallery-controls">
+							<button type="button" data-gallery-prev aria-label="上一张照片">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+							</button>
+							<button type="button" data-gallery-toggle aria-label="暂停自动轮播" aria-pressed="false">
+								<span data-gallery-toggle-icon aria-hidden="true">Ⅱ</span>
+							</button>
+							<button type="button" data-gallery-next aria-label="下一张照片">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
+							</button>
+						</div>
+					</div>
+				</header>
+
+				<div
+					class="gallery-viewport"
+					data-gallery-viewport
+					tabindex="0"
+					role="region"
+					aria-roledescription="carousel"
+					aria-label="骑行照片轮播，使用左右方向键切换"
+				>
+					<div class="gallery-track" data-gallery-track>
+						{gallery.map((photo, index) => (
+							<figure
+								class:list={['gallery-slide', { 'gallery-slide--contain': photo.fit === 'contain' }]}
+								data-gallery-slide
+								data-index={index}
+								data-caption={`${photo.label} / ${photo.title}`}
+								aria-hidden={index === 0 ? 'false' : 'true'}
+								style={`--photo-position: ${photo.position}`}
+							>
+								<Image
+									src={photo.src}
+									alt={photo.alt}
+									widths={[640, 960, 1280, 1600]}
+									sizes="(max-width: 720px) 82vw, 900px"
+									quality={82}
+									loading={index === 0 ? 'eager' : 'lazy'}
+									fetchpriority={index === 0 ? 'high' : 'auto'}
+								/>
+								<figcaption>
+									<span>{photo.label}</span>
+									<strong>{photo.title}</strong>
+								</figcaption>
+							</figure>
+						))}
+					</div>
+				</div>
+
+				<div class="gallery-footer">
+					<div class="gallery-progress" aria-hidden="true">
+						<span data-gallery-progress></span>
+					</div>
+					<div class="gallery-thumbs" aria-label="选择照片">
+						{gallery.map((photo, index) => (
+							<button
+								type="button"
+								class="gallery-thumb"
+								data-gallery-thumb
+								data-index={index}
+								aria-label={`查看照片：${photo.title}`}
+								aria-current={index === 0 ? 'true' : 'false'}
+								style={`--photo-position: ${photo.position}`}
+							>
+								<Image src={photo.src} alt="" width={180} height={116} quality={72} loading="lazy" />
+								<span>{String(index + 1).padStart(2, '0')}</span>
+							</button>
+						))}
+					</div>
+				</div>
+				<p class="sr-only" data-gallery-live aria-live="polite">Climb / 山巅之后</p>
 			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
 
+<script>
+	const initRideGallery = () => {
+		const root = document.querySelector<HTMLElement>('[data-ride-gallery]:not([data-ready])');
+		if (!root) return;
+
+		root.dataset.ready = 'true';
+		const viewport = root.querySelector<HTMLElement>('[data-gallery-viewport]');
+		const track = root.querySelector<HTMLElement>('[data-gallery-track]');
+		const slides = [...root.querySelectorAll<HTMLElement>('[data-gallery-slide]')];
+		const thumbs = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]')];
+		const count = root.querySelector<HTMLOutputElement>('[data-gallery-count]');
+		const live = root.querySelector<HTMLElement>('[data-gallery-live]');
+		const progress = root.querySelector<HTMLElement>('[data-gallery-progress]');
+		const toggle = root.querySelector<HTMLButtonElement>('[data-gallery-toggle]');
+		const toggleIcon = root.querySelector<HTMLElement>('[data-gallery-toggle-icon]');
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (!viewport || !track || !count || !live || !progress || !toggle || !toggleIcon || slides.length === 0) return;
+
+		let activeIndex = 0;
+		let timer = 0;
+		let pointerStart = 0;
+		let autoplay = !prefersReducedMotion;
+		let isHovered = false;
+		let hasFocus = false;
+
+		const positionTrack = () => {
+			const slide = slides[activeIndex];
+			const maxOffset = Math.max(0, track.scrollWidth - viewport.clientWidth);
+			const offset = Math.min(slide.offsetLeft, maxOffset);
+			track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+		};
+
+		const stopTimer = () => {
+			window.clearInterval(timer);
+			timer = 0;
+		};
+
+		const syncTimer = () => {
+			stopTimer();
+			if (!autoplay || isHovered || hasFocus || document.hidden) return;
+			timer = window.setInterval(() => setActive(activeIndex + 1), 6500);
+		};
+
+		const syncToggle = () => {
+			toggle.setAttribute('aria-pressed', String(!autoplay));
+			toggle.setAttribute('aria-label', autoplay ? '暂停自动轮播' : '继续自动轮播');
+			toggleIcon.textContent = autoplay ? 'Ⅱ' : '▶';
+		};
+
+		const setActive = (nextIndex: number, announce = false) => {
+			activeIndex = (nextIndex + slides.length) % slides.length;
+			slides.forEach((slide, index) => slide.setAttribute('aria-hidden', String(index !== activeIndex)));
+			thumbs.forEach((thumb, index) => thumb.setAttribute('aria-current', String(index === activeIndex)));
+			count.value = `${String(activeIndex + 1).padStart(2, '0')} — ${String(slides.length).padStart(2, '0')}`;
+			progress.style.setProperty('--gallery-progress', `${((activeIndex + 1) / slides.length) * 100}%`);
+			if (announce) live.textContent = slides[activeIndex].dataset.caption ?? '';
+			positionTrack();
+		};
+
+		const move = (direction: number) => {
+			setActive(activeIndex + direction, true);
+			syncTimer();
+		};
+
+		root.querySelector<HTMLButtonElement>('[data-gallery-prev]')?.addEventListener('click', () => move(-1));
+		root.querySelector<HTMLButtonElement>('[data-gallery-next]')?.addEventListener('click', () => move(1));
+		thumbs.forEach((thumb, index) => thumb.addEventListener('click', () => {
+			setActive(index, true);
+			syncTimer();
+		}));
+
+		toggle.addEventListener('click', () => {
+			autoplay = !autoplay;
+			syncToggle();
+			syncTimer();
+		});
+
+		viewport.addEventListener('keydown', (event) => {
+			if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+			event.preventDefault();
+			move(event.key === 'ArrowLeft' ? -1 : 1);
+		});
+		viewport.addEventListener('pointerdown', (event) => {
+			pointerStart = event.clientX;
+		});
+		viewport.addEventListener('pointerup', (event) => {
+			const distance = event.clientX - pointerStart;
+			if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
+		});
+
+		root.addEventListener('mouseenter', () => {
+			isHovered = true;
+			syncTimer();
+		});
+		root.addEventListener('mouseleave', () => {
+			isHovered = false;
+			syncTimer();
+		});
+		root.addEventListener('focusin', () => {
+			hasFocus = true;
+			syncTimer();
+		});
+		root.addEventListener('focusout', () => {
+			window.setTimeout(() => {
+				hasFocus = root.contains(document.activeElement);
+				syncTimer();
+			}, 0);
+		});
+
+		const handleVisibility = () => syncTimer();
+		document.addEventListener('visibilitychange', handleVisibility);
+		const resizeObserver = new ResizeObserver(positionTrack);
+		resizeObserver.observe(viewport);
+
+		setActive(0);
+		syncToggle();
+		syncTimer();
+
+		document.addEventListener('astro:before-swap', () => {
+			stopTimer();
+			resizeObserver.disconnect();
+			document.removeEventListener('visibilitychange', handleVisibility);
+		}, { once: true });
+	};
+
+	initRideGallery();
+	document.addEventListener('astro:page-load', initRideGallery);
+</script>
+
 <style>
 	.hero,
-	.hero-card {
+	.ride-gallery {
 		background: rgba(var(--surface-1), 0.72);
 		border: 1px solid rgba(var(--border), 0.28);
 		border-radius: var(--radius-lg);
 		box-shadow: var(--surface-shadow);
 	}
+
 	.hero {
-		padding: 2rem;
+		display: grid;
+		grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 1.15fr);
+		gap: clamp(2rem, 6vw, 6rem);
+		align-items: end;
+		padding: clamp(1.5rem, 4vw, 2.75rem);
 	}
+
+	.hero-kicker,
+	.gallery-kicker {
+		margin: 0 0 0.55rem;
+		color: rgb(var(--accent));
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		line-height: 1.3;
+	}
+
 	.hero h1 {
-		margin-bottom: 1rem;
+		margin: 0;
+		font-size: clamp(3rem, 8vw, 5.8rem);
+		line-height: 0.88;
+		letter-spacing: -0.065em;
 	}
+
+	.hero-copy p {
+		max-width: 34rem;
+		margin-top: 0;
+	}
+
 	.hero-cta {
 		margin: 1rem 0 0;
-	}
-	.hero-card {
-		margin-top: 1.2rem;
-		padding: 1rem;
-		text-align: center;
-	}
-	.caption {
-		margin: 0.7rem 0 0.15rem;
 		color: rgb(var(--gray));
+		font-size: 0.82rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
 	}
+
+	.ride-gallery {
+		--gallery-road-blue: #3aa5ff;
+		--gallery-marker-yellow: #f4c84b;
+		--gallery-brake-red: #ef5c71;
+		margin-top: 1.2rem;
+		padding: clamp(0.85rem, 2vw, 1.35rem);
+		overflow: hidden;
+	}
+
+	.gallery-heading,
+	.gallery-status,
+	.gallery-controls,
+	.gallery-footer {
+		display: flex;
+		align-items: center;
+	}
+
+	.gallery-heading {
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.35rem 0.2rem clamp(0.9rem, 2vw, 1.2rem);
+	}
+
+	.gallery-heading h2 {
+		margin: 0;
+		font-size: clamp(2rem, 5vw, 3.8rem);
+		line-height: 0.95;
+		letter-spacing: -0.045em;
+	}
+
+	.gallery-status {
+		gap: 1rem;
+	}
+
+	.gallery-count {
+		min-width: 4.9rem;
+		color: rgb(var(--gray));
+		font-size: 0.76rem;
+		font-variant-numeric: tabular-nums;
+		font-weight: 700;
+		letter-spacing: 0.13em;
+	}
+
+	.gallery-controls {
+		gap: 0.35rem;
+	}
+
+	.gallery-controls button {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		padding: 0;
+		border: 1px solid rgba(var(--border), 0.35);
+		border-radius: 999px;
+		background: rgba(var(--surface-0), 0.64);
+		color: rgb(var(--gray-dark));
+		cursor: pointer;
+		transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+	}
+
+	.gallery-controls button:hover {
+		border-color: var(--gallery-marker-yellow);
+		background: rgba(244, 200, 75, 0.12);
+		color: var(--gallery-marker-yellow);
+		transform: translateY(-1px);
+	}
+
+	.gallery-controls button:focus-visible,
+	.gallery-thumb:focus-visible,
+	.gallery-viewport:focus-visible {
+		outline: 2px solid var(--gallery-marker-yellow);
+		outline-offset: 3px;
+	}
+
+	.gallery-controls svg {
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	[data-gallery-toggle-icon] {
+		font-size: 0.74rem;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	.gallery-viewport {
+		overflow: hidden;
+		border-radius: calc(var(--radius-lg) - 5px);
+		background: #07101a;
+		touch-action: pan-y;
+		cursor: grab;
+	}
+
+	.gallery-viewport:active {
+		cursor: grabbing;
+	}
+
+	.gallery-track {
+		display: flex;
+		gap: clamp(0.55rem, 1.2vw, 0.9rem);
+		width: max-content;
+		transition: transform 0.78s cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: transform;
+	}
+
+	.gallery-slide {
+		position: relative;
+		flex: 0 0 calc((min(1080px, 100vw - 2.5rem) - clamp(1.7rem, 4vw, 2.7rem)) - clamp(4.2rem, 10vw, 7rem));
+		width: calc((min(1080px, 100vw - 2.5rem) - clamp(1.7rem, 4vw, 2.7rem)) - clamp(4.2rem, 10vw, 7rem));
+		aspect-ratio: 16 / 10;
+		margin: 0;
+		overflow: hidden;
+		border-radius: calc(var(--radius-lg) - 5px);
+		background: #07101a;
+		isolation: isolate;
+	}
+
+	.gallery-slide::after {
+		content: '';
+		position: absolute;
+		inset: 42% 0 0;
+		z-index: 1;
+		background: linear-gradient(transparent, rgba(3, 8, 13, 0.72));
+		pointer-events: none;
+	}
+
+	.gallery-slide :global(img) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+		object-fit: cover;
+		object-position: var(--photo-position);
+		transform: scale(1.01);
+		transition: transform 6.5s ease-out;
+	}
+
+	.gallery-slide[aria-hidden='false'] :global(img) {
+		transform: scale(1.055);
+	}
+
+	.gallery-slide--contain :global(img) {
+		object-fit: contain;
+		transform: none;
+	}
+
+	.gallery-slide--contain[aria-hidden='false'] :global(img) {
+		transform: none;
+	}
+
+	.gallery-slide figcaption {
+		position: absolute;
+		left: clamp(1rem, 3vw, 2rem);
+		bottom: clamp(0.85rem, 2vw, 1.5rem);
+		z-index: 2;
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		color: #fff;
+		text-shadow: 0 2px 20px rgba(0, 0, 0, 0.68);
+	}
+
+	.gallery-slide figcaption span {
+		padding: 0.22rem 0.45rem;
+		border-radius: 2px;
+		background: var(--gallery-marker-yellow);
+		color: #17130b;
+		font-size: 0.63rem;
+		font-weight: 700;
+		letter-spacing: 0.13em;
+		line-height: 1.1;
+		text-transform: uppercase;
+		text-shadow: none;
+	}
+
+	.gallery-slide figcaption strong {
+		font-size: clamp(1.05rem, 2.6vw, 1.65rem);
+		letter-spacing: -0.02em;
+	}
+
+	.gallery-footer {
+		gap: 1rem;
+		align-items: stretch;
+		padding: 0.9rem 0.15rem 0.1rem;
+	}
+
+	.gallery-progress {
+		position: relative;
+		flex: 1;
+		min-width: 5rem;
+		height: 2px;
+		margin: auto 0;
+		overflow: hidden;
+		background: rgba(var(--border), 0.34);
+	}
+
+	.gallery-progress span {
+		display: block;
+		width: var(--gallery-progress, 20%);
+		height: 100%;
+		background: linear-gradient(90deg, var(--gallery-road-blue), var(--gallery-marker-yellow) 72%, var(--gallery-brake-red));
+		transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.gallery-thumbs {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(3.6rem, 5.8rem));
+		gap: 0.4rem;
+	}
+
+	.gallery-thumb {
+		position: relative;
+		aspect-ratio: 1.55;
+		padding: 0;
+		overflow: hidden;
+		border: 1px solid rgba(var(--border), 0.3);
+		border-radius: 4px;
+		background: #07101a;
+		cursor: pointer;
+		opacity: 0.52;
+		transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+	}
+
+	.gallery-thumb:hover {
+		opacity: 0.82;
+		transform: translateY(-2px);
+	}
+
+	.gallery-thumb[aria-current='true'] {
+		border-color: var(--gallery-marker-yellow);
+		opacity: 1;
+	}
+
+	.gallery-thumb :global(img) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+		object-fit: cover;
+		object-position: var(--photo-position);
+	}
+
+	.gallery-thumb span {
+		position: absolute;
+		right: 0.25rem;
+		bottom: 0.15rem;
+		padding: 0.05rem 0.18rem;
+		background: rgba(3, 8, 13, 0.68);
+		color: #fff;
+		font-size: 0.55rem;
+		font-variant-numeric: tabular-nums;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+	}
+
 	@media (max-width: 720px) {
 		.hero {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
 			padding: 1.2rem;
+		}
+
+		.hero h1 {
+			font-size: clamp(3.1rem, 18vw, 5rem);
+		}
+
+		.gallery-heading {
+			align-items: flex-end;
+		}
+
+		.gallery-status {
+			flex-direction: column;
+			align-items: flex-end;
+			gap: 0.45rem;
+		}
+
+		.gallery-controls button {
+			width: 2.2rem;
+			height: 2.2rem;
+		}
+
+		.gallery-slide {
+			flex-basis: calc(100vw - 1.5rem - 1.7rem - 3.4rem);
+			width: calc(100vw - 1.5rem - 1.7rem - 3.4rem);
+			aspect-ratio: 4 / 5;
+		}
+
+		.gallery-slide figcaption {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 0.4rem;
+		}
+
+		.gallery-footer {
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		.gallery-progress {
+			flex: none;
+			width: 100%;
+		}
+
+		.gallery-thumbs {
+			grid-template-columns: repeat(5, 1fr);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.gallery-track,
+		.gallery-progress span,
+		.gallery-slide :global(img),
+		.gallery-thumb,
+		.gallery-controls button {
+			transition: none;
 		}
 	}
 </style>

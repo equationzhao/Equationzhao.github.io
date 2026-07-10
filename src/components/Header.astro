@@ -55,6 +55,13 @@ import HeaderLink from './HeaderLink.astro';
 							<small>Telemetry panels and speed color</small>
 						</span>
 					</button>
+					<button class="theme-option" type="button" role="option" data-theme-value="alpine-brevet">
+						<span class="theme-option-swatch swatch-alpine" aria-hidden="true"></span>
+						<span>
+							<strong>Alpine Brevet</strong>
+							<small>Routes, contours and summit color</small>
+						</span>
+					</button>
 				</div>
 			</div>
 			<a href="https://github.com/Equationzhao" target="_blank" rel = prefetch-intent>
@@ -250,6 +257,9 @@ import HeaderLink from './HeaderLink.astro';
 	}
 	:global(.swatch-racing) {
 		background: linear-gradient(135deg, #26e0c2, #ff7a2f);
+	}
+	:global(.swatch-alpine) {
+		background: linear-gradient(135deg, #f7f8f2 0 38%, #198fd8 38% 72%, #f27135 72%);
 	}
 	@keyframes theme-menu-in {
 		from {

@@ -110,6 +110,28 @@
 	--radius-lg: 12px;
 }
 
+[data-theme="alpine-brevet"] {
+	--accent: 25, 143, 216;
+	--accent-strong: 242, 113, 53;
+	--black: 24, 32, 34;
+	--gray-dark: 35, 47, 49;
+	--gray: 91, 108, 109;
+	--gray-light: 158, 175, 174;
+	--surface-0: 239, 244, 240;
+	--surface-1: 250, 252, 247;
+	--surface-2: 224, 234, 231;
+	--border: 157, 178, 175;
+	--body-gradient: radial-gradient(ellipse at 14% -8%, rgba(var(--accent), 0.14), transparent 33%),
+		repeating-radial-gradient(ellipse at 82% 12%, transparent 0 32px, rgba(var(--border), 0.16) 33px, transparent 34px 48px),
+		linear-gradient(165deg, #f7f8f2 0%, #edf3ef 58%, #f8f6ed 100%);
+	--body-background-size: auto, 760px 460px, auto;
+	--box-shadow: 0 12px 30px rgba(51, 76, 72, 0.12), 0 0 0 1px rgba(var(--border), 0.42);
+	--surface-shadow: 0 8px 20px rgba(51, 76, 72, 0.09), 0 0 0 1px rgba(var(--border), 0.38);
+	--radius-md: 5px;
+	--radius-lg: 9px;
+	color-scheme: light;
+}
+
 [data-theme="crt-terminal"] h1,
 [data-theme="crt-terminal"] h2,
 [data-theme="crt-terminal"] h3,
@@ -127,6 +149,59 @@
 [data-theme="racing-dashboard"] h5,
 [data-theme="racing-dashboard"] h6 {
 	color: rgb(235, 249, 248);
+}
+
+[data-theme="alpine-brevet"] h1,
+[data-theme="alpine-brevet"] h2,
+[data-theme="alpine-brevet"] h3,
+[data-theme="alpine-brevet"] h4,
+[data-theme="alpine-brevet"] h5,
+[data-theme="alpine-brevet"] h6 {
+	color: rgb(var(--black));
+	letter-spacing: -0.015em;
+}
+
+[data-theme="alpine-brevet"] code {
+	color: rgb(var(--black));
+	border-color: rgba(var(--accent), 0.24);
+}
+
+[data-theme="alpine-brevet"] blockquote {
+	color: rgb(var(--black));
+	border-left-color: rgb(var(--accent-strong));
+}
+
+[data-theme="alpine-brevet"] a:hover {
+	color: rgb(14, 74, 111);
+	text-shadow: none;
+}
+
+[data-theme="alpine-brevet"] .brand a,
+[data-theme="alpine-brevet"] .brand a.active {
+	color: rgb(var(--black)) !important;
+}
+
+[data-theme="alpine-brevet"] header {
+	background: rgba(var(--surface-1), 0.94);
+	border-bottom-color: rgba(var(--black), 0.55);
+	box-shadow: 0 6px 18px rgba(51, 76, 72, 0.09);
+}
+
+[data-theme="alpine-brevet"] header::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 6px;
+	pointer-events: none;
+	background: linear-gradient(90deg, rgb(var(--accent)) 0 86%, rgb(var(--accent-strong)) 86% 90%, rgb(var(--black)) 90% 100%);
+	clip-path: polygon(0 100%, 0 78%, 12% 72%, 21% 84%, 33% 58%, 43% 68%, 55% 38%, 63% 52%, 74% 20%, 84% 34%, 92% 0, 100% 18%, 100% 100%);
+}
+
+[data-theme="alpine-brevet"] nav a.active {
+	color: rgb(var(--black)) !important;
+	box-shadow: 0 0 0 1px rgba(var(--accent), 0.52) inset !important;
 }
 
 [data-theme="crt-terminal"] code,

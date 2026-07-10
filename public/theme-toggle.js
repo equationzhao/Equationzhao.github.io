@@ -5,6 +5,7 @@
     { id: 'night-console', label: 'Night Console' },
     { id: 'crt-terminal', label: 'CRT Terminal' },
     { id: 'racing-dashboard', label: 'Racing Dashboard' },
+    { id: 'alpine-brevet', label: 'Alpine Brevet' },
   ];
   var themeMap = themes.reduce(function (acc, theme) {
     acc[theme.id] = theme;

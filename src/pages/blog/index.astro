@@ -7,187 +7,82 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import { getBlogPostPath, getPublishedBlogPosts } from '../../lib/blog';
 
 const posts = await getPublishedBlogPosts();
+const featured = posts[0];
+const remaining = posts.slice(1);
+const featuredImage = featured?.data.heroImage?.startsWith('/') ? featured.data.heroImage : undefined;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			section {
-				padding: 1.2rem;
-				background: rgba(var(--surface-1), 0.72);
-				border: 1px solid rgba(var(--border), 0.28);
-				border-radius: var(--radius-lg);
-				box-shadow: var(--surface-shadow);
-			}
-			ul {
-				display: grid;
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				position: relative;
-				overflow: hidden;
-				border-radius: var(--radius-md);
-				background: rgba(var(--surface-0), 0.55);
-				border: 1px solid rgba(var(--border), 0.2);
-				box-shadow: 0 8px 24px rgba(3, 7, 18, 0.16);
-				transform: translateY(0);
-				transition:
-					transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
-					border-color 0.28s ease,
-					background 0.28s ease,
-					box-shadow 0.32s ease;
-			}
-			ul li::before {
-				content: '';
-				position: absolute;
-				inset: 0;
-				pointer-events: none;
-				background:
-					radial-gradient(circle at 18% 0%, rgba(var(--accent), 0.16), transparent 34%),
-					linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 42%);
-				opacity: 0;
-				transition: opacity 0.32s ease;
-			}
-			ul li:first-child {
-				grid-column: 1 / -1;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				display: block;
-				width: 100%;
-				aspect-ratio: 510 / 205;
-				object-fit: cover;
-				border-radius: 12px;
-				filter: saturate(0.92) brightness(0.88);
-				transform: scale(1.01);
-				transition:
-					transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
-					filter 0.32s ease,
-					box-shadow 0.32s ease;
-			}
-			ul li a {
-				position: relative;
-				z-index: 1;
-				display: block;
-				padding: 1rem;
-				text-decoration: none;
-			}
-			.hero-image {
-				overflow: hidden;
-				margin-bottom: 0.8rem;
-				border-radius: 12px;
-				background: rgba(var(--surface-2), 0.4);
-			}
-			.title {
-				margin: 0 0 0.5rem;
-				color: rgb(237, 242, 255);
-				line-height: 1.2;
-				transition: color 0.28s ease, transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-			}
-			.description {
-				margin: 0 0 0.45rem;
-				color: rgb(var(--gray));
-				transition: color 0.28s ease;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-				font-size: 0.92rem;
-				transition: color 0.28s ease;
-			}
-			ul li:hover,
-			ul li:focus-within {
-				background: rgba(var(--surface-0), 0.74);
-				border-color: rgba(var(--accent), 0.42);
-				box-shadow: 0 16px 34px rgba(3, 7, 18, 0.36), 0 0 0 1px rgba(var(--accent), 0.12);
-				transform: translateY(-4px);
-			}
-			ul li:hover::before,
-			ul li:focus-within::before {
-				opacity: 1;
-			}
-			ul li:hover .title,
-			ul li:focus-within .title {
-				color: rgb(var(--accent));
-				transform: translateY(-1px);
-			}
-			ul li:hover .description,
-			ul li:focus-within .description {
-				color: rgb(var(--gray-dark));
-			}
-			ul li:hover img,
-			ul li:focus-within img {
-				filter: saturate(1.05) brightness(1);
-				transform: scale(1.035);
-				box-shadow: 0 0 0 1px rgba(var(--accent), 0.48), 0 10px 24px rgba(4, 8, 22, 0.55);
-			}
-			@media (prefers-reduced-motion: reduce) {
-				ul li,
-				ul li::before,
-				ul li img,
-				.title,
-				.description,
-				.date {
-					transition: none;
-				}
-				ul li:hover,
-				ul li:focus-within,
-				ul li:hover .title,
-				ul li:focus-within .title,
-				ul li:hover img,
-				ul li:focus-within img {
-					transform: none;
-				}
-			}
-			@media (max-width: 720px) {
-				section {
-					padding: 0.8rem;
-				}
-				ul {
-					grid-template-columns: 1fr;
-					gap: 0.8rem;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
+		<BaseHead title={`Writing | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
-		<main transition:animate="fade">
-			<section>
-				<ul>
-					{						
-						posts.map((post, index) => (
-							<li>
-								<a href={getBlogPostPath(post.id)} rel = prefetch-intent>
-									<div class="hero-image">
-										<img width={510} height={205} src={post.data.heroImage} alt={post.data.title} loading={index === 0 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} />
-									</div>
-									<h4 class="title">{post.data.title}</h4>
-									<p class="description"><em>{post.data.description}</em></p>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
+		<main>
+			<header class="writing-hero">
+				<p class="eyebrow">Writing</p>
+				<h1>Notes from building,<br />riding, and looking closer.</h1>
+				<p>技术记录、训练思考、个人随笔，以及偶尔值得留下来的绕路。</p>
+			</header>
+
+			{featured && (
+				<section aria-labelledby="latest-title">
+					<p class="eyebrow">Latest</p>
+					<a class:list={['latest-post', { 'has-image': featuredImage }]} href={getBlogPostPath(featured.id)} rel="prefetch-intent">
+						<div class="latest-copy">
+							<div class="post-meta"><FormattedDate date={featured.data.pubDate} />{featured.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}</div>
+							<h2 id="latest-title">{featured.data.title}</h2>
+							<p>{featured.data.description}</p>
+						</div>
+						{featuredImage && <img src={featuredImage} alt="" loading="eager" fetchpriority="high" />}
+						<span class="latest-arrow" aria-hidden="true">↗</span>
+					</a>
+				</section>
+			)}
+
+			<section class="archive" aria-labelledby="archive-title">
+				<div class="section-heading"><div><p class="eyebrow">Archive</p><h2 id="archive-title">All writing</h2></div><span>{posts.length} posts</span></div>
+				<div class="post-index">
+					{remaining.map((post) => (
+						<a href={getBlogPostPath(post.id)} rel="prefetch-intent">
+							<div><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
+							<div class="post-tags">{post.data.tags.slice(0, 2).map((tag) => <span>{tag}</span>)}</div>
+							<FormattedDate date={post.data.pubDate} />
+						</a>
+					))}
+				</div>
 			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.writing-hero { max-width: 940px; padding: clamp(2rem, 6vw, 5rem) 0 clamp(4rem, 9vw, 8rem); }
+	.writing-hero h1 { margin: 0; font-size: clamp(3rem, 8vw, 6.4rem); line-height: 0.98; letter-spacing: -0.065em; }
+	.writing-hero > p:last-child { max-width: 46ch; margin: 1.5rem 0 0; color: rgb(var(--gray)); }
+	.latest-post { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 38%) auto; gap: clamp(1.5rem, 5vw, 4rem); align-items: center; padding: clamp(1.5rem, 4vw, 3rem) 0; border-block: 1px solid rgba(var(--border), .38); color: inherit; text-decoration: none; }
+	.latest-post:not(.has-image) { grid-template-columns: minmax(0, 1fr) auto; }
+	.latest-copy h2 { max-width: 16ch; margin: .8rem 0 0; font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1.06; }
+	.latest-copy > p { max-width: 55ch; margin: 1rem 0 0; color: rgb(var(--gray)); }
+	.post-meta { display: flex; flex-wrap: wrap; gap: .45rem .85rem; color: rgb(var(--gray)); font: 500 .72rem var(--font-mono); }
+	.latest-post img { width: 100%; aspect-ratio: 4 / 3; border-radius: 0; object-fit: cover; background: rgb(var(--surface-1)); }
+	.latest-arrow { color: rgb(var(--accent)); font-size: 1.5rem; }
+	.latest-post:hover h2, .post-index a:hover h3 { color: rgb(var(--accent)); }
+	.archive { padding-top: clamp(4rem, 9vw, 8rem); }
+	.section-heading > span { color: rgb(var(--gray)); font: 500 .72rem var(--font-mono); }
+	.post-index { border-top: 1px solid rgba(var(--border), .38); }
+	.post-index a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(100px, auto) auto; gap: 1.5rem; align-items: start; padding: 1.25rem 0; border-bottom: 1px solid rgba(var(--border), .3); color: inherit; text-decoration: none; }
+	.post-index h3 { margin: 0; font-size: 1.15rem; letter-spacing: -.02em; }
+	.post-index p { max-width: 62ch; margin: .3rem 0 0; color: rgb(var(--gray)); font-size: .88rem; }
+	.post-index :global(time), .post-tags { color: rgb(var(--gray)); font: 500 .7rem var(--font-mono); white-space: nowrap; }
+	.post-tags { display: flex; flex-wrap: wrap; gap: .45rem; }
+	@media (max-width: 720px) {
+		.latest-post { grid-template-columns: 1fr auto; }
+		.latest-post img { grid-column: 1 / -1; grid-row: 1; }
+		.latest-copy { grid-column: 1; }
+		.post-index a { grid-template-columns: 1fr; gap: .55rem; }
+		.post-tags { order: 3; }
+	}
+</style>

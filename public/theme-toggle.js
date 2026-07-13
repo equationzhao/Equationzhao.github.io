@@ -44,6 +44,7 @@
     localStorage.setItem(key, theme);
     localStorage.removeItem(legacyKey);
     updatePicker(theme);
+    window.dispatchEvent(new CustomEvent('appearancechange', { detail: { theme: theme } }));
   }
 
   function closeMenu() {

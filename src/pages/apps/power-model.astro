@@ -10,9 +10,6 @@ import { SITE_TITLE } from '../../consts';
 	<head>
 		<BaseHead title={`CP Pro | ${SITE_TITLE}`} description="Morton 3-parameter critical power model — simulated annealing with outlier detection" />
 		<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 		<style is:inline>
 			/* ---- Reset form elements ---- */
 			input[type="number"],
@@ -449,6 +446,23 @@ import { SITE_TITLE } from '../../consts';
 				.hero-metrics { gap: 0.5rem; }
 				.metric-card { padding: 0.7rem 0.8rem; }
 			}
+
+			/* Editorial tool surface */
+			main { width: min(1160px, calc(100% - 2.5rem)); }
+			.pm-top { min-height: 44px; margin-bottom: 1.5rem; }
+			.back-link { color: rgb(var(--gray)); font-family: var(--font-display); }
+			.pm-badge, .metric-label, .metric-value, .metric-unit, .panel-title, .loading-text, .zone-range, .stat-value, .stat-unit { font-family: var(--font-mono); }
+			.field label, .hint-text, .toggle-row span, .dp-header, .btn, .zone-name, .stat-label, .empty-text, .empty-hint { font-family: var(--font-display); }
+			.metric-card, .panel { border-color: rgba(var(--border), .38); background: transparent; box-shadow: none; }
+			.metric-card { border-radius: var(--radius-md); }
+			.metric-value, .stat-value { color: rgb(var(--gray-dark)); }
+			.panel { border-radius: var(--radius-md); }
+			input[type='number'] { min-height: 44px; border-color: rgba(var(--border), .42); background: rgb(var(--surface-1)); font-family: var(--font-mono); }
+			.toggle-row { min-height: 44px; background: rgba(var(--surface-1), .42); }
+			.btn { min-height: 44px; font-family: var(--font-display); }
+			.btn-go { background: rgb(var(--accent)); color: rgb(var(--accent-ink)); }
+			.btn-go:hover { background: rgb(var(--accent)); color: rgb(var(--accent-ink)); }
+			@media (max-width: 720px) { main { width: min(100% - 1.5rem, 1160px); } }
 		</style>
 	</head>
 	<body>
@@ -682,10 +696,12 @@ import { SITE_TITLE } from '../../consts';
 			const ctx=document.getElementById('powerChart').getContext('2d');
 			if(ci)ci.destroy();
 			const{curve,m,normal,outliers}=cd;
-			const dk=document.documentElement.getAttribute('data-theme')!=='light';
+			const theme=document.documentElement.getAttribute('data-theme');
+			const dk=!['light','alpine-brevet'].includes(theme);
+			const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'47, 207, 145';
 			const gc=dk?'rgba(126,214,255,0.08)':'rgba(0,0,0,0.06)';
 			const tc=dk?'rgba(180,200,230,0.7)':'rgba(50,60,80,0.6)';
-			const lc=dk?'rgba(126,214,255,0.8)':'rgba(52,152,219,0.85)';
+			const lc=`rgba(${accent},0.85)`;
 			ci=new Chart(ctx,{type:'scatter',data:{datasets:[
 				{label:'Fitted',data:curve.map(p=>({x:p.time,y:p.power})),borderColor:lc,backgroundColor:'transparent',borderWidth:2,showLine:true,pointRadius:0},
 				{label:`CP ${fv(m.cp)}W`,data:[{x:1,y:m.cp},{x:3600,y:m.cp}],borderColor:dk?'rgba(200,210,230,0.3)':'rgba(0,0,0,0.2)',borderWidth:1,borderDash:[5,3],showLine:true,pointRadius:0},
@@ -703,6 +719,11 @@ import { SITE_TITLE } from '../../consts';
 		document.getElementById('downloadPng').addEventListener('click',()=>{
 			if(!ci)return;const a=document.createElement('a');a.download=`power-curve-cp-${cd.m.cp.toFixed(0)}.png`;a.href=ci.canvas.toDataURL('image/png');a.click();
 		});
+		const handleAppearanceChange=()=>{
+			if(cd&&document.getElementById('powerChart')&&document.getElementById('chartEmpty'))renderChart();
+		};
+		window.addEventListener('appearancechange',handleAppearanceChange);
+		document.addEventListener('astro:before-swap',()=>window.removeEventListener('appearancechange',handleAppearanceChange),{once:true});
 
 		/* ==== EVENTS ==== */
 		document.getElementById('addPoint').addEventListener('click',()=>{addRow();save();});

@@ -34,6 +34,7 @@
   color: var(--ar-text);
   margin: -1.4rem;
   padding-bottom: 2rem;
+  overflow-x: hidden;
 }
 
 /* ===================== HERO ===================== */
@@ -394,6 +395,7 @@
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 900px) {
+  .ai-report { margin: 0 }
   .sub-grid { grid-template-columns: repeat(2, 1fr) }
   .sub-card:nth-child(n) { grid-column: span 1 }
   .exp-grid { grid-template-columns: 1fr }

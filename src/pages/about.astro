@@ -6,7 +6,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
 	<BaseHead title={`About | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
@@ -181,17 +181,39 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 			color: var(--accent);
 		}
 	</style>
+	<style>
+		.about-intro { max-width: 820px; margin-bottom: 3rem; }
+		.about-intro > p:last-child { max-width: 52ch; margin: 1rem 0 0; color: rgb(var(--gray)); }
+		.about-header { align-items: center; margin-bottom: 1rem; }
+		.avatar { width: 88px; height: 88px; border: 1px solid rgba(var(--border), .42); border-radius: 50%; }
+		.about-header-text h1 { font-size: clamp(2.2rem, 6vw, 4rem); color: rgb(var(--gray-dark)); letter-spacing: -.055em; }
+		.about-header-text p { color: rgb(var(--gray)); }
+		.about-meta { gap: .5rem; margin-bottom: 3rem; }
+		.about-meta li { min-height: 32px; padding: .35rem .7rem; border-color: rgba(var(--border), .38); background: transparent; color: rgb(var(--gray)); font: 500 .72rem var(--font-mono); }
+		.readme-panel { min-height: 160px; padding: clamp(1.2rem, 4vw, 2.5rem) 0; border: 0; border-block: 1px solid rgba(var(--border), .38); border-radius: 0; background: transparent; box-shadow: none; }
+		.readme-loading { color: rgb(var(--gray)); }
+		.readme-panel h1, .readme-panel h2, .readme-panel h3, .readme-panel h4 { color: rgb(var(--gray-dark)); }
+		.readme-panel p, .readme-panel ul, .readme-panel ol, .readme-panel td { color: rgb(var(--gray)); }
+		.readme-panel pre { background: rgb(var(--surface-1)); }
+		.readme-error { margin: 0; color: rgb(var(--gray)); }
+		.readme-error a { color: rgb(var(--accent)); }
+		.readme-source { text-align: left; font-family: var(--font-mono); }
+	</style>
 </head>
 
 <body>
 	<Header />
 	<main>
-		<div class="about-header">
-			<img class="avatar" src="https://avatars.githubusercontent.com/u/75521101?v=4" alt="Equationzhao" />
-			<div class="about-header-text">
-				<h1>Equationzhao</h1>
-				<p>好的方程列出来有诗の美感</p>
+		<div class="about-intro">
+			<p class="eyebrow">About</p>
+			<div class="about-header">
+				<img class="avatar" src="https://avatars.githubusercontent.com/u/75521101?v=4" alt="Equationzhao" />
+				<div class="about-header-text">
+					<h1>Equationzhao</h1>
+					<p>好的方程列出来有诗の美感</p>
+				</div>
 			</div>
+			<p>Engineer by trade, amateur cyclist by choice. This page follows the longer version maintained on GitHub.</p>
 		</div>
 
 		<ul class="about-meta">
@@ -207,7 +229,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		</div>
 
 		<p class="readme-source">
-			Source: <a href="https://github.com/Equationzhao/Equationzhao" target="_blank">github.com/Equationzhao/Equationzhao</a>
+			Source: <a href="https://github.com/Equationzhao/Equationzhao" target="_blank" rel="noopener noreferrer">github.com/Equationzhao/Equationzhao</a>
 		</p>
 	</main>
 	<Footer />
@@ -239,7 +261,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 				});
 			})
 			.catch(function (err) {
-				container.innerHTML = '<p style="color:rgba(var(--gray-light),0.6)">Failed to load: ' + err.message + '</p>';
+				container.innerHTML = '<p class="readme-error">GitHub README 暂时无法加载（' + err.message + '）。你仍可以在 <a href="https://github.com/Equationzhao/Equationzhao" target="_blank" rel="noopener noreferrer">GitHub 查看原文</a>。</p>';
 			});
 	})();
 	</script>

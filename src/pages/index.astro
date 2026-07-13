@@ -2,8 +2,11 @@
 import { Image } from 'astro:assets';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { apps } from '../data/apps';
+import { getBlogPostPath, getPublishedBlogPosts } from '../lib/blog';
 import bikehomeCover from '../assets/home-gallery/bikehome-cover.webp';
 import cornerTraining from '../assets/home-gallery/corner-training.webp';
 import forestGroup from '../assets/home-gallery/forest-group.webp';
@@ -11,115 +14,85 @@ import summitSelfie from '../assets/home-gallery/summit-selfie.webp';
 import zhoushanRide from '../assets/home-gallery/zhoushan-ride.webp';
 
 const gallery = [
-	{
-		src: summitSelfie,
-		alt: '骑行者在山顶公路旁与连绵群山自拍',
-		label: 'Climb',
-		title: '山巅之后',
-		position: 'center 56%',
-	},
-	{
-		src: bikehomeCover,
-		alt: '以公路骑行为主题的 Bikehome Momentum 杂志封面',
-		label: 'Cover',
-		title: 'Momentum',
-		position: 'center center',
-		fit: 'contain',
-	},
-	{
-		src: zhoushanRide,
-		alt: '环舟山骑游大会中正在爬坡的公路车骑行者',
-		label: 'Event',
-		title: '环舟山 2026',
-		position: 'center 63%',
-		fit: 'contain',
-	},
-	{
-		src: cornerTraining,
-		alt: '穿粉色骑行服的骑行者独自通过山路弯道',
-		label: 'Corners',
-		title: '过弯',
-		position: 'center center',
-	},
-	{
-		src: forestGroup,
-		alt: '三名骑行者沿着潮湿的林间公路向前骑行',
-		label: 'Together',
-		title: '雨林骑行',
-		position: 'center 62%',
-		fit: 'contain',
-	},
+	{ src: summitSelfie, alt: '骑行者在山顶公路旁与连绵群山自拍', label: 'Climb', title: '山巅之后', position: 'center 56%' },
+	{ src: bikehomeCover, alt: '以公路骑行为主题的 Bikehome Momentum 杂志封面', label: 'Cover', title: 'Momentum', position: 'center center' },
+	{ src: zhoushanRide, alt: '环舟山骑游大会中正在爬坡的公路车骑行者', label: 'Event', title: '环舟山 2026', position: 'center 63%' },
+	{ src: cornerTraining, alt: '穿粉色骑行服的骑行者独自通过山路弯道', label: 'Corners', title: '过弯', position: 'center center' },
+	{ src: forestGroup, alt: '三名骑行者沿着潮湿的林间公路向前骑行', label: 'Together', title: '雨林骑行', position: 'center 62%' },
 ];
+
+const posts = await getPublishedBlogPosts();
+const featuredPost = posts[0];
+const recentPosts = posts.slice(1, 4);
+const featuredTags = featuredPost?.data.tags.slice(0, 3) ?? [];
+const featuredPath = featuredPost ? getBlogPostPath(featuredPost.id) : '/blog';
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} image={summitSelfie.src} />
 	</head>
 	<body>
-		<Header title={SITE_TITLE} />
+		<Header />
 		<main>
-			<section class="hero">
+			<section class="home-hero" aria-labelledby="home-title">
 				<div>
-					<p class="hero-kicker">EQUATIONZHAO / PERSONAL LOG</p>
-					<h1>Hi there!<br />你好</h1>
+					<p class="eyebrow">Eq's personal notebook</p>
+					<h1 id="home-title">Build things.<br />Ride far.<br />Notice more.</h1>
 				</div>
 				<div class="hero-copy">
-					<p>欢迎来到 Eq 的个人网站。这里是我的个人博客，我会在这里分享学习与生活中的内容。</p>
-					<p class="hero-cta"><strong>Have fun cycling!</strong></p>
+					<p>关于工程、骑行与那些值得留下来的小事。一个工程师的开放式记录。</p>
+					<div class="hero-actions">
+						<a class="action action-primary" href="/blog" rel="prefetch-intent">Read latest</a>
+						<a class="action" href="/apps" rel="prefetch-intent">Open tools</a>
+					</div>
 				</div>
 			</section>
 
-			<section class="ride-gallery" data-ride-gallery aria-labelledby="ride-gallery-title">
-				<header class="gallery-heading">
+			<section class="ride-archive" data-ride-gallery aria-labelledby="ride-title">
+				<div class="section-heading gallery-heading">
 					<div>
-						<p class="gallery-kicker">RIDE ARCHIVE / 骑行切片</p>
-						<h2 id="ride-gallery-title">On the road.</h2>
+						<p class="eyebrow">Ride archive</p>
+						<h2 id="ride-title">On the road.</h2>
 					</div>
-					<div class="gallery-status" aria-label="画廊状态">
-						<output class="gallery-count" data-gallery-count aria-live="polite">01 — {String(gallery.length).padStart(2, '0')}</output>
-						<div class="gallery-controls">
-							<button type="button" data-gallery-prev aria-label="上一张照片">
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
-							</button>
-							<button type="button" data-gallery-toggle aria-label="暂停自动轮播" aria-pressed="false">
-								<span data-gallery-toggle-icon aria-hidden="true">Ⅱ</span>
-							</button>
-							<button type="button" data-gallery-next aria-label="下一张照片">
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
-							</button>
-						</div>
-					</div>
-				</header>
+					<p>Five frames from the miles between.</p>
+				</div>
 
+				<p class="sr-only" id="gallery-instructions">左右滑动照片，或使用上一张、下一张按钮和键盘方向键。</p>
 				<div
 					class="gallery-viewport"
 					data-gallery-viewport
 					tabindex="0"
 					role="region"
 					aria-roledescription="carousel"
-					aria-label="骑行照片轮播，使用左右方向键切换"
+					aria-label="骑行照片轮播"
+					aria-describedby="gallery-instructions"
 				>
 					<div class="gallery-track" data-gallery-track>
 						{gallery.map((photo, index) => (
 							<figure
-								class:list={['gallery-slide', { 'gallery-slide--contain': photo.fit === 'contain' }]}
+								class="gallery-slide"
 								data-gallery-slide
 								data-index={index}
 								data-caption={`${photo.label} / ${photo.title}`}
+								role="group"
+								aria-roledescription="slide"
+								aria-label={`第 ${index + 1} 张，共 ${gallery.length} 张：${photo.title}`}
 								aria-hidden={index === 0 ? 'false' : 'true'}
-								style={`--photo-position: ${photo.position}; --photo-url: url(${photo.src.src})`}
 							>
-								<Image
-									src={photo.src}
-									alt={photo.alt}
-									widths={[640, 960, 1280, 1600]}
-									sizes="(max-width: 760px) 94vw, (max-width: 1120px) 72vw, 820px"
-									quality={84}
-									loading={index === 0 ? 'eager' : 'lazy'}
-									fetchpriority={index === 0 ? 'high' : 'auto'}
-								/>
+								<div class="photo-stage">
+									<Image
+										src={photo.src}
+										alt={photo.alt}
+										widths={[480, 720, 960, 1280, 1600, 2000]}
+										sizes="(max-width: 720px) 88vw, min(980px, 78vw)"
+										quality={84}
+										loading={index === 0 ? 'eager' : 'lazy'}
+										fetchpriority={index === 0 ? 'high' : 'auto'}
+										style={`--photo-position: ${photo.position}`}
+									/>
+								</div>
 								<figcaption>
 									<span>{photo.label}</span>
 									<strong>{photo.title}</strong>
@@ -129,33 +102,77 @@ const gallery = [
 					</div>
 				</div>
 
-				<div class="gallery-footer">
+				<div class="gallery-controls">
+					<output data-gallery-count aria-live="off">01 / {String(gallery.length).padStart(2, '0')}</output>
 					<div class="gallery-progress" aria-hidden="true">
-						<span data-gallery-progress></span>
+						{gallery.map((_, index) => <span data-gallery-progress class:list={{ active: index === 0 }}></span>)}
 					</div>
-					<div class="gallery-thumbs" aria-label="选择照片">
-						{gallery.map((photo, index) => (
-							<button
-								type="button"
-								class="gallery-thumb"
-								data-gallery-thumb
-								data-index={index}
-								aria-label={`查看照片：${photo.title}`}
-								aria-current={index === 0 ? 'true' : 'false'}
-								style={`--photo-position: ${photo.position}`}
-							>
-								<span class="gallery-thumb-image">
-									<Image src={photo.src} alt="" width={180} height={116} quality={72} loading="lazy" />
-								</span>
-								<span class="gallery-thumb-copy">
-									<small>{String(index + 1).padStart(2, '0')} / {photo.label}</small>
-									<strong>{photo.title}</strong>
-								</span>
-							</button>
-						))}
+					<div class="gallery-buttons">
+						<button type="button" data-gallery-prev aria-label="上一张照片">
+							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+						</button>
+						<button type="button" data-gallery-next aria-label="下一张照片">
+							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
+						</button>
 					</div>
 				</div>
 				<p class="sr-only" data-gallery-live aria-live="polite">Climb / 山巅之后</p>
+			</section>
+
+			<section class="home-section" aria-labelledby="writing-title">
+				<div class="section-heading">
+					<div>
+						<p class="eyebrow">Writing</p>
+						<h2 id="writing-title">From the notebook</h2>
+					</div>
+					<a href="/blog" rel="prefetch-intent">See all →</a>
+				</div>
+
+				{featuredPost && (
+					<a class="featured-post" href={featuredPath} rel="prefetch-intent">
+						<div class="featured-index" aria-hidden="true">Latest</div>
+						<div>
+							<div class="post-meta">
+								<FormattedDate date={featuredPost.data.pubDate} />
+								{featuredTags.map((tag) => <span>{tag}</span>)}
+							</div>
+							<h3>{featuredPost.data.title}</h3>
+							<p>{featuredPost.data.description}</p>
+						</div>
+						<span class="post-arrow" aria-hidden="true">↗</span>
+					</a>
+				)}
+
+				<div class="recent-posts">
+					{recentPosts.map((post) => (
+						<a href={getBlogPostPath(post.id)} rel="prefetch-intent">
+							<div>
+								<h3>{post.data.title}</h3>
+								<p>{post.data.description}</p>
+							</div>
+							<FormattedDate date={post.data.pubDate} />
+						</a>
+					))}
+				</div>
+			</section>
+
+			<section class="home-section" aria-labelledby="tools-title">
+				<div class="section-heading">
+					<div>
+						<p class="eyebrow">Tools</p>
+						<h2 id="tools-title">Small instruments</h2>
+					</div>
+					<a href="/apps" rel="prefetch-intent">All tools →</a>
+				</div>
+				<div class="tool-list">
+					{apps.slice(0, 3).map((app) => (
+						<a href={app.href} target={app.external ? '_blank' : undefined} rel={app.external ? 'noopener noreferrer' : 'prefetch-intent'}>
+							<span class="tool-icon" aria-hidden="true">{app.icon}</span>
+							<span><strong>{app.title}</strong><small>{app.description}</small></span>
+							<span aria-hidden="true">↗</span>
+						</a>
+					))}
+				</div>
 			</section>
 		</main>
 		<Footer />
@@ -166,124 +183,64 @@ const gallery = [
 	const initRideGallery = () => {
 		const root = document.querySelector<HTMLElement>('[data-ride-gallery]:not([data-ready])');
 		if (!root) return;
-
 		root.dataset.ready = 'true';
+
 		const viewport = root.querySelector<HTMLElement>('[data-gallery-viewport]');
 		const track = root.querySelector<HTMLElement>('[data-gallery-track]');
 		const slides = [...root.querySelectorAll<HTMLElement>('[data-gallery-slide]')];
-		const thumbs = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]')];
 		const count = root.querySelector<HTMLOutputElement>('[data-gallery-count]');
 		const live = root.querySelector<HTMLElement>('[data-gallery-live]');
-		const progress = root.querySelector<HTMLElement>('[data-gallery-progress]');
-		const toggle = root.querySelector<HTMLButtonElement>('[data-gallery-toggle]');
-		const toggleIcon = root.querySelector<HTMLElement>('[data-gallery-toggle-icon]');
-		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (!viewport || !track || !count || !live || !progress || !toggle || !toggleIcon || slides.length === 0) return;
+		const progress = [...root.querySelectorAll<HTMLElement>('[data-gallery-progress]')];
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (!viewport || !track || !count || !live || slides.length === 0) return;
 
 		let activeIndex = 0;
-		let timer = 0;
-		let pointerStart = 0;
-		let autoplay = !prefersReducedMotion;
-		let isHovered = false;
-		let hasFocus = false;
+		let requestedIndex = 0;
 
-		const positionTrack = () => {
-			const slide = slides[activeIndex];
-			const maxOffset = Math.max(0, track.scrollWidth - viewport.clientWidth);
-			const offset = Math.min(slide.offsetLeft, maxOffset);
-			track.style.transform = `translate3d(${-offset}px, 0, 0)`;
-		};
-
-		const stopTimer = () => {
-			window.clearInterval(timer);
-			timer = 0;
-		};
-
-		const syncTimer = () => {
-			stopTimer();
-			if (!autoplay || isHovered || hasFocus || document.hidden) return;
-			timer = window.setInterval(() => setActive(activeIndex + 1), 6500);
-		};
-
-		const syncToggle = () => {
-			toggle.setAttribute('aria-pressed', String(!autoplay));
-			toggle.setAttribute('aria-label', autoplay ? '暂停自动轮播' : '继续自动轮播');
-			toggleIcon.textContent = autoplay ? 'Ⅱ' : '▶';
-		};
-
-		const setActive = (nextIndex: number, announce = false) => {
-			activeIndex = (nextIndex + slides.length) % slides.length;
-			slides.forEach((slide, index) => slide.setAttribute('aria-hidden', String(index !== activeIndex)));
-			thumbs.forEach((thumb, index) => thumb.setAttribute('aria-current', String(index === activeIndex)));
-			count.value = `${String(activeIndex + 1).padStart(2, '0')} — ${String(slides.length).padStart(2, '0')}`;
-			progress.style.setProperty('--gallery-progress', `${((activeIndex + 1) / slides.length) * 100}%`);
+		const setActive = (index: number, announce = false) => {
+			activeIndex = Math.max(0, Math.min(slides.length - 1, index));
+			requestedIndex = activeIndex;
+			slides.forEach((slide, slideIndex) => slide.setAttribute('aria-hidden', String(slideIndex !== activeIndex)));
+			progress.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === activeIndex));
+			count.value = `${String(activeIndex + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
 			if (announce) live.textContent = slides[activeIndex].dataset.caption ?? '';
-			positionTrack();
 		};
 
-		const move = (direction: number) => {
-			setActive(activeIndex + direction, true);
-			syncTimer();
+		const goTo = (index: number, announce = true) => {
+			const wrapped = (index + slides.length) % slides.length;
+			requestedIndex = wrapped;
+			const left = slides[wrapped].offsetLeft - track.offsetLeft;
+			viewport.scrollTo({ left, behavior: reducedMotion ? 'auto' : 'smooth' });
+			setActive(wrapped, announce);
 		};
 
-		root.querySelector<HTMLButtonElement>('[data-gallery-prev]')?.addEventListener('click', () => move(-1));
-		root.querySelector<HTMLButtonElement>('[data-gallery-next]')?.addEventListener('click', () => move(1));
-		thumbs.forEach((thumb, index) => thumb.addEventListener('click', () => {
-			setActive(index, true);
-			syncTimer();
-		}));
-
-		toggle.addEventListener('click', () => {
-			autoplay = !autoplay;
-			syncToggle();
-			syncTimer();
-		});
-
+		root.querySelector<HTMLButtonElement>('[data-gallery-prev]')?.addEventListener('click', () => goTo(requestedIndex - 1));
+		root.querySelector<HTMLButtonElement>('[data-gallery-next]')?.addEventListener('click', () => goTo(requestedIndex + 1));
 		viewport.addEventListener('keydown', (event) => {
 			if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
 			event.preventDefault();
-			move(event.key === 'ArrowLeft' ? -1 : 1);
-		});
-		viewport.addEventListener('pointerdown', (event) => {
-			pointerStart = event.clientX;
-		});
-		viewport.addEventListener('pointerup', (event) => {
-			const distance = event.clientX - pointerStart;
-			if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
+			goTo(requestedIndex + (event.key === 'ArrowRight' ? 1 : -1));
 		});
 
-		root.addEventListener('mouseenter', () => {
-			isHovered = true;
-			syncTimer();
-		});
-		root.addEventListener('mouseleave', () => {
-			isHovered = false;
-			syncTimer();
-		});
-		root.addEventListener('focusin', () => {
-			hasFocus = true;
-			syncTimer();
-		});
-		root.addEventListener('focusout', () => {
-			window.setTimeout(() => {
-				hasFocus = root.contains(document.activeElement);
-				syncTimer();
-			}, 0);
-		});
+		const observer = new IntersectionObserver((entries) => {
+			const visible = entries
+				.filter((entry) => entry.isIntersecting)
+				.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+			if (!visible) return;
+			const index = Number((visible.target as HTMLElement).dataset.index);
+			if (Number.isFinite(index) && index !== activeIndex) setActive(index, true);
+		}, { root: viewport, threshold: [0.58, 0.72, 0.9] });
+		slides.forEach((slide) => observer.observe(slide));
 
-		const handleVisibility = () => syncTimer();
-		document.addEventListener('visibilitychange', handleVisibility);
-		const resizeObserver = new ResizeObserver(positionTrack);
+		const resizeObserver = new ResizeObserver(() => {
+			viewport.scrollLeft = slides[activeIndex].offsetLeft - track.offsetLeft;
+		});
 		resizeObserver.observe(viewport);
-
 		setActive(0);
-		syncToggle();
-		syncTimer();
 
 		document.addEventListener('astro:before-swap', () => {
-			stopTimer();
+			observer.disconnect();
 			resizeObserver.disconnect();
-			document.removeEventListener('visibilitychange', handleVisibility);
 		}, { once: true });
 	};
 
@@ -292,502 +249,428 @@ const gallery = [
 </script>
 
 <style>
-	.hero,
-	.ride-gallery {
-		background: rgba(var(--surface-1), 0.72);
-		border: 1px solid rgba(var(--border), 0.28);
-		border-radius: var(--radius-lg);
-		box-shadow: var(--surface-shadow);
-	}
-
-	.hero {
+	.home-hero {
 		display: grid;
-		grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 1.15fr);
-		gap: clamp(2rem, 6vw, 6rem);
+		grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.7fr);
+		gap: clamp(2rem, 8vw, 7rem);
 		align-items: end;
-		padding: clamp(1.5rem, 4vw, 2.75rem);
+		min-height: min(620px, calc(100vh - 68px));
+		padding: clamp(3rem, 9vw, 8rem) 0;
+		border-bottom: 1px solid rgba(var(--border), 0.38);
 	}
 
-	.hero-kicker,
-	.gallery-kicker {
-		margin: 0 0 0.55rem;
-		color: rgb(var(--accent));
-		font-size: 0.72rem;
-		font-weight: 700;
-		letter-spacing: 0.16em;
-		line-height: 1.3;
-	}
-
-	.hero h1 {
+	.home-hero h1 {
+		max-width: 7ch;
 		margin: 0;
-		font-size: clamp(3rem, 8vw, 5.8rem);
-		line-height: 0.88;
-		letter-spacing: -0.065em;
-	}
-
-	.hero-copy p {
-		max-width: 34rem;
-		margin-top: 0;
-	}
-
-	.hero-cta {
-		margin: 1rem 0 0;
-		color: rgb(var(--gray));
-		font-size: 0.82rem;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-
-	.ride-gallery {
-		--gallery-road-blue: #3aa5ff;
-		--gallery-marker-yellow: #f4c84b;
-		--gallery-brake-red: #ef5c71;
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) clamp(10.5rem, 20vw, 13rem);
-		gap: clamp(0.7rem, 1.6vw, 1rem);
-		margin-top: 1.2rem;
-		padding: clamp(0.9rem, 2.2vw, 1.45rem);
-		overflow: hidden;
-		background:
-			radial-gradient(circle at 92% 8%, rgba(58, 165, 255, 0.1), transparent 30%),
-			rgba(var(--surface-1), 0.76);
-	}
-
-	.gallery-heading,
-	.gallery-status,
-	.gallery-controls,
-	.gallery-footer {
-		display: flex;
-		align-items: center;
-	}
-
-	.gallery-heading {
-		grid-column: 1 / -1;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.25rem 0.1rem clamp(0.95rem, 2vw, 1.25rem);
-		border-bottom: 1px solid rgba(var(--border), 0.22);
-	}
-
-	.gallery-heading h2 {
-		margin: 0;
-		font-size: clamp(2.1rem, 5vw, 3.85rem);
+		font-size: clamp(3.4rem, 9.2vw, 7.4rem);
+		font-weight: 650;
+		letter-spacing: -0.075em;
 		line-height: 0.92;
-		letter-spacing: -0.05em;
 	}
 
-	.gallery-status {
-		gap: clamp(0.7rem, 2vw, 1.15rem);
+	.hero-copy {
+		padding-bottom: 0.65rem;
 	}
 
-	.gallery-count {
-		min-width: 5rem;
+	.hero-copy > p {
+		max-width: 30ch;
+		margin: 0;
 		color: rgb(var(--gray));
-		font-size: 0.75rem;
-		font-variant-numeric: tabular-nums;
-		font-weight: 700;
-		letter-spacing: 0.14em;
+		font-size: clamp(1rem, 1.6vw, 1.12rem);
+	}
+
+	.hero-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.7rem;
+		margin-top: 1.6rem;
+	}
+
+	.action {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 44px;
+		padding: 0 1rem;
+		border: 1px solid rgba(var(--border), 0.42);
+		border-radius: 999px;
+		color: rgb(var(--gray-dark));
+		font: 600 0.82rem var(--font-display);
+		text-decoration: none;
+	}
+
+	.action:hover {
+		border-color: rgba(var(--accent), 0.65);
+		background: rgba(var(--accent), 0.08);
+	}
+
+	.action-primary {
+		border-color: rgb(var(--gray-dark));
+		background: rgb(var(--gray-dark));
+		color: rgb(var(--surface-0));
+	}
+
+	.action-primary:hover {
+		border-color: rgb(var(--accent));
+		background: rgb(var(--accent));
+		color: rgb(var(--accent-ink));
+	}
+
+	.ride-archive {
+		padding: clamp(4rem, 9vw, 8rem) 0;
+		border-bottom: 1px solid rgba(var(--border), 0.38);
+	}
+
+	.gallery-heading > p {
+		max-width: 28ch;
+		margin: 0 0 0.3rem;
+		color: rgb(var(--gray));
 		text-align: right;
 	}
 
-	.gallery-controls {
-		gap: 0;
-		overflow: hidden;
-		border: 1px solid rgba(var(--border), 0.34);
-		border-radius: 999px;
-		background: rgba(var(--surface-0), 0.54);
-	}
-
-	.gallery-controls button {
-		display: grid;
-		place-items: center;
-		width: 2.45rem;
-		height: 2.45rem;
-		padding: 0;
-		border: 0;
-		border-radius: 0;
-		background: transparent;
-		color: rgb(var(--gray-dark));
-		cursor: pointer;
-		transition: color 0.18s ease, background-color 0.18s ease;
-	}
-
-	.gallery-controls button + button {
-		border-left: 1px solid rgba(var(--border), 0.28);
-	}
-
-	.gallery-controls button:hover {
-		background: rgba(244, 200, 75, 0.12);
-		color: var(--gallery-marker-yellow);
-	}
-
-	.gallery-controls button:focus-visible,
-	.gallery-thumb:focus-visible,
-	.gallery-viewport:focus-visible {
-		outline: 2px solid var(--gallery-marker-yellow);
-		outline-offset: 3px;
-	}
-
-	.gallery-controls svg {
-		width: 1.12rem;
-		height: 1.12rem;
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.8;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	[data-gallery-toggle-icon] {
-		font-size: 0.7rem;
-		font-weight: 700;
-		line-height: 1;
-	}
-
 	.gallery-viewport {
-		grid-column: 1;
-		min-width: 0;
-		overflow: hidden;
-		border: 1px solid rgba(255, 255, 255, 0.07);
-		border-radius: calc(var(--radius-lg) - 6px);
-		background: #07101a;
-		box-shadow: 0 18px 40px rgba(3, 8, 13, 0.18);
-		touch-action: pan-y;
-		cursor: grab;
+		width: min(1400px, calc(100vw - 2rem));
+		margin-left: 50%;
+		transform: translateX(-50%);
+		overflow-x: auto;
+		overscroll-behavior-inline: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+		touch-action: pan-x pan-y;
 	}
 
-	.gallery-viewport:active {
-		cursor: grabbing;
+	.gallery-viewport::-webkit-scrollbar {
+		display: none;
 	}
 
 	.gallery-track {
 		display: flex;
-		gap: 0.8rem;
-		width: 100%;
-		transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
-		will-change: transform;
+		gap: clamp(0.8rem, 2vw, 1.4rem);
+		width: max-content;
+		padding-right: 11vw;
 	}
 
 	.gallery-slide {
-		position: relative;
-		flex: 0 0 100%;
-		width: 100%;
-		aspect-ratio: 16 / 10;
+		flex: 0 0 min(980px, 78vw);
+		width: min(980px, 78vw);
 		margin: 0;
+		scroll-snap-align: start;
+		scroll-snap-stop: always;
+	}
+
+	.photo-stage {
+		display: grid;
+		height: clamp(360px, 55vw, 650px);
+		place-items: center;
 		overflow: hidden;
-		border-radius: calc(var(--radius-lg) - 7px);
-		background: #07101a;
-		isolation: isolate;
+		border: 1px solid rgba(var(--border), 0.3);
+		background: rgb(var(--surface-1));
 	}
 
-	.gallery-slide::after {
-		content: '';
-		position: absolute;
-		inset: 36% 0 0;
-		z-index: 2;
-		background: linear-gradient(transparent, rgba(3, 8, 13, 0.2) 25%, rgba(3, 8, 13, 0.82));
-		pointer-events: none;
-	}
-
-	.gallery-slide--contain::before {
-		content: '';
-		position: absolute;
-		inset: -2rem;
-		z-index: 0;
-		background-image: var(--photo-url);
-		background-position: var(--photo-position);
-		background-size: cover;
-		filter: blur(28px) saturate(0.8) brightness(0.45);
-		transform: scale(1.08);
-		opacity: 0.82;
-	}
-
-	.gallery-slide :global(img) {
-		position: relative;
-		z-index: 1;
+	.photo-stage :global(img) {
 		display: block;
 		width: 100%;
 		height: 100%;
 		border-radius: 0;
-		object-fit: cover;
-		object-position: var(--photo-position);
-		transform: scale(1.005);
-		transition: transform 6.5s ease-out, filter 0.45s ease;
-	}
-
-	.gallery-slide[aria-hidden='false'] :global(img) {
-		transform: scale(1.035);
-	}
-
-	.gallery-slide--contain :global(img),
-	.gallery-slide--contain[aria-hidden='false'] :global(img) {
 		object-fit: contain;
-		transform: none;
+		object-position: var(--photo-position);
 	}
 
 	.gallery-slide figcaption {
-		position: absolute;
-		left: clamp(1.15rem, 3vw, 2.15rem);
-		bottom: clamp(1rem, 2.5vw, 1.75rem);
-		z-index: 3;
-		display: grid;
-		gap: 0.32rem;
-		color: #fff;
-		text-shadow: 0 2px 24px rgba(0, 0, 0, 0.72);
+		display: flex;
+		align-items: baseline;
+		gap: 0.8rem;
+		padding: 0.8rem 0 0;
+		font-family: var(--font-display);
+	}
+
+	.gallery-slide[aria-hidden='true'] figcaption {
+		opacity: 0;
 	}
 
 	.gallery-slide figcaption span {
-		display: flex;
-		align-items: center;
-		gap: 0.45rem;
-		font-size: 0.64rem;
-		font-weight: 750;
-		letter-spacing: 0.16em;
-		line-height: 1.1;
+		color: rgb(var(--accent));
+		font: 650 0.68rem var(--font-mono);
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
-	}
-
-	.gallery-slide figcaption span::before {
-		content: '';
-		width: 1.35rem;
-		height: 2px;
-		background: var(--gallery-marker-yellow);
-		box-shadow: 1.5rem 0 0 var(--gallery-brake-red);
 	}
 
 	.gallery-slide figcaption strong {
-		font-size: clamp(1.55rem, 4vw, 2.65rem);
-		letter-spacing: -0.045em;
-		line-height: 1;
+		color: rgb(var(--gray-dark));
+		font-size: 1rem;
+		font-weight: 600;
 	}
 
-	.gallery-footer {
-		grid-column: 2;
-		align-items: stretch;
-		flex-direction: column;
-		gap: 0.75rem;
-		min-width: 0;
+	.gallery-controls {
+		display: grid;
+		grid-template-columns: auto minmax(100px, 1fr) auto;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 1.25rem;
+	}
+
+	.gallery-controls output {
+		min-width: 4.8rem;
+		color: rgb(var(--gray));
+		font: 600 0.75rem var(--font-mono);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.gallery-progress {
-		position: relative;
-		flex: none;
-		width: 100%;
-		height: 2px;
-		overflow: hidden;
-		background: rgba(var(--border), 0.34);
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 0.35rem;
 	}
 
 	.gallery-progress span {
-		display: block;
-		width: var(--gallery-progress, 20%);
-		height: 100%;
-		background: linear-gradient(90deg, var(--gallery-road-blue), var(--gallery-marker-yellow) 72%, var(--gallery-brake-red));
-		transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+		height: 2px;
+		background: rgba(var(--border), 0.38);
 	}
 
-	.gallery-thumbs {
+	.gallery-progress span.active {
+		background: rgb(var(--accent));
+	}
+
+	.gallery-buttons {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.gallery-buttons button {
 		display: grid;
-		grid-template-rows: repeat(5, minmax(0, 1fr));
-		gap: 0.45rem;
-		flex: 1;
-		min-height: 0;
-	}
-
-	.gallery-thumb {
-		position: relative;
-		display: grid;
-		grid-template-columns: minmax(3.4rem, 4.35rem) minmax(0, 1fr);
-		gap: 0.62rem;
-		align-items: center;
-		min-height: 0;
-		padding: 0.34rem;
-		overflow: hidden;
-		border: 1px solid transparent;
-		border-radius: 6px;
-		background: rgba(var(--surface-0), 0.36);
-		color: rgb(var(--gray-dark));
-		text-align: left;
-		cursor: pointer;
-		opacity: 0.58;
-		transition: opacity 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
-	}
-
-	.gallery-thumb::before {
-		content: '';
-		position: absolute;
-		inset: 0 auto 0 0;
-		width: 2px;
+		width: 44px;
+		height: 44px;
+		place-items: center;
+		padding: 0;
+		border: 1px solid rgba(var(--border), 0.42);
+		border-radius: 50%;
 		background: transparent;
-		transition: background-color 0.18s ease;
+		color: rgb(var(--gray-dark));
+		cursor: pointer;
 	}
 
-	.gallery-thumb:hover {
-		background: rgba(var(--surface-0), 0.62);
-		opacity: 0.88;
-		transform: translateX(-2px);
+	.gallery-buttons button:hover {
+		border-color: rgb(var(--accent));
+		background: rgba(var(--accent), 0.08);
 	}
 
-	.gallery-thumb[aria-current='true'] {
-		border-color: rgba(244, 200, 75, 0.3);
-		background: rgba(244, 200, 75, 0.08);
-		opacity: 1;
+	.gallery-buttons svg {
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 1.8;
 	}
 
-	.gallery-thumb[aria-current='true']::before {
-		background: var(--gallery-marker-yellow);
+	.home-section {
+		padding: clamp(4rem, 9vw, 8rem) 0 0;
 	}
 
-	.gallery-thumb-image {
-		display: block;
-		aspect-ratio: 1.3;
-		overflow: hidden;
-		border-radius: 3px;
-		background: #07101a;
-	}
-
-	.gallery-thumb-image :global(img) {
-		display: block;
-		width: 100%;
-		height: 100%;
-		border-radius: 0;
-		object-fit: cover;
-		object-position: var(--photo-position);
-		filter: saturate(0.82);
-		transition: filter 0.18s ease, transform 0.35s ease;
-	}
-
-	.gallery-thumb:hover .gallery-thumb-image :global(img),
-	.gallery-thumb[aria-current='true'] .gallery-thumb-image :global(img) {
-		filter: saturate(1);
-		transform: scale(1.045);
-	}
-
-	.gallery-thumb-copy {
+	.featured-post {
 		display: grid;
-		gap: 0.2rem;
-		min-width: 0;
+		grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr) auto;
+		gap: clamp(1rem, 4vw, 3rem);
+		align-items: start;
+		padding: clamp(1.4rem, 4vw, 2.8rem) 0;
+		border-top: 1px solid rgba(var(--border), 0.38);
+		border-bottom: 1px solid rgba(var(--border), 0.38);
+		color: inherit;
+		text-decoration: none;
 	}
 
-	.gallery-thumb-copy small {
-		overflow: hidden;
-		color: rgb(var(--gray));
-		font-size: 0.54rem;
-		font-variant-numeric: tabular-nums;
-		font-weight: 700;
-		letter-spacing: 0.09em;
-		text-overflow: ellipsis;
+	.featured-index {
+		color: rgb(var(--accent));
+		font: 650 0.72rem var(--font-mono);
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
+	}
+
+	.post-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem 0.85rem;
+		color: rgb(var(--gray));
+		font: 500 0.72rem var(--font-mono);
+	}
+
+	.featured-post h3 {
+		max-width: 18ch;
+		margin: 0.8rem 0 0;
+		font-size: clamp(1.8rem, 4.4vw, 3.8rem);
+		line-height: 1.08;
+	}
+
+	.featured-post p {
+		max-width: 56ch;
+		margin: 1rem 0 0;
+		color: rgb(var(--gray));
+	}
+
+	.post-arrow {
+		color: rgb(var(--accent));
+		font-size: 1.5rem;
+	}
+
+	.featured-post:hover h3,
+	.recent-posts a:hover h3 {
+		color: rgb(var(--accent));
+	}
+
+	.recent-posts a {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 1.5rem;
+		align-items: start;
+		padding: 1.25rem 0;
+		border-bottom: 1px solid rgba(var(--border), 0.3);
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.recent-posts h3 {
+		margin: 0;
+		font-size: 1.15rem;
+		letter-spacing: -0.02em;
+	}
+
+	.recent-posts p {
+		max-width: 62ch;
+		margin: 0.35rem 0 0;
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+	}
+
+	.recent-posts :global(time) {
+		color: rgb(var(--gray));
+		font: 500 0.72rem var(--font-mono);
 		white-space: nowrap;
 	}
 
-	.gallery-thumb-copy strong {
-		overflow: hidden;
+	.tool-list {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		border-top: 1px solid rgba(var(--border), 0.38);
+		border-bottom: 1px solid rgba(var(--border), 0.38);
+	}
+
+	.tool-list a {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		gap: 0.85rem;
+		min-height: 136px;
+		padding: 1.2rem;
+		border-right: 1px solid rgba(var(--border), 0.38);
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.tool-list a:last-child {
+		border-right: 0;
+	}
+
+	.tool-list a:hover {
+		background: rgba(var(--accent), 0.06);
+	}
+
+	.tool-list strong,
+	.tool-list small {
+		display: block;
+	}
+
+	.tool-list strong {
+		font: 650 1rem var(--font-display);
+	}
+
+	.tool-list small {
+		margin-top: 0.45rem;
+		color: rgb(var(--gray));
 		font-size: 0.78rem;
-		font-weight: 700;
-		line-height: 1.2;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		line-height: 1.45;
 	}
 
-	@media (max-width: 760px) {
-		.hero {
+	.tool-icon {
+		font-size: 1.05rem;
+	}
+
+	@media (max-width: 720px) {
+		.gallery-viewport {
+			width: 100%;
+			margin-left: 0;
+			transform: none;
+		}
+
+		.home-hero {
 			grid-template-columns: 1fr;
-			gap: 1.5rem;
-			padding: 1.2rem;
+			gap: 2.4rem;
+			min-height: 0;
+			padding: 4.8rem 0 4rem;
 		}
 
-		.hero h1 {
-			font-size: clamp(3.1rem, 18vw, 5rem);
-		}
-
-		.ride-gallery {
-			display: block;
-			padding: 0.78rem;
+		.home-hero h1 {
+			font-size: clamp(3.2rem, 18vw, 5.4rem);
 		}
 
 		.gallery-heading {
-			align-items: flex-end;
-			padding: 0.25rem 0.1rem 0.85rem;
-		}
-
-		.gallery-heading h2 {
-			font-size: clamp(2rem, 11vw, 3rem);
-		}
-
-		.gallery-status {
+			align-items: flex-start;
 			flex-direction: column;
-			align-items: flex-end;
-			gap: 0.42rem;
 		}
 
-		.gallery-count {
-			font-size: 0.65rem;
+		.gallery-heading > p {
+			text-align: left;
 		}
 
-		.gallery-controls button {
-			width: 2.12rem;
-			height: 2.12rem;
-		}
-
-		.gallery-viewport {
-			margin-top: 0.75rem;
+		.gallery-track {
+			gap: 0.75rem;
+			padding-right: 8vw;
 		}
 
 		.gallery-slide {
-			aspect-ratio: 4 / 3;
+			flex-basis: 88vw;
+			width: 88vw;
 		}
 
-		.gallery-slide figcaption strong {
-			font-size: clamp(1.45rem, 8vw, 2.1rem);
+		.photo-stage {
+			height: min(64vh, 520px);
+			min-height: 320px;
 		}
 
-		.gallery-footer {
-			gap: 0.65rem;
-			padding-top: 0.7rem;
+		.gallery-controls {
+			grid-template-columns: auto 1fr auto;
 		}
 
-		.gallery-thumbs {
-			display: grid;
-			grid-template-columns: repeat(5, minmax(0, 1fr));
-			grid-template-rows: none;
-			gap: 0.32rem;
+		.featured-post {
+			grid-template-columns: 1fr auto;
 		}
 
-		.gallery-thumb {
-			display: block;
-			padding: 0;
-			border-radius: 4px;
+		.featured-index {
+			grid-column: 1 / -1;
 		}
 
-		.gallery-thumb::before {
-			inset: auto 0 0;
-			width: auto;
-			height: 2px;
+		.recent-posts a {
+			grid-template-columns: 1fr;
+			gap: 0.55rem;
 		}
 
-		.gallery-thumb:hover {
-			transform: translateY(-2px);
+		.tool-list {
+			grid-template-columns: 1fr;
 		}
 
-		.gallery-thumb-image {
-			aspect-ratio: 1.2;
-			border-radius: 3px;
+		.tool-list a {
+			min-height: 108px;
+			border-right: 0;
+			border-bottom: 1px solid rgba(var(--border), 0.38);
 		}
 
-		.gallery-thumb-copy {
-			display: none;
+		.tool-list a:last-child {
+			border-bottom: 0;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.gallery-track,
-		.gallery-progress span,
-		.gallery-slide :global(img),
-		.gallery-thumb,
-		.gallery-thumb-image :global(img),
-		.gallery-controls button {
-			transition: none;
+		.gallery-viewport {
+			scroll-behavior: auto;
 		}
 	}
 </style>

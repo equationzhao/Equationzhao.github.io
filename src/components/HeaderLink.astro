@@ -6,7 +6,11 @@ type Props = HTMLAttributes<'a'>;
 const { href, class: className, ...props } = Astro.props;
 
 const { pathname } = Astro.url;
-const isActive = href === pathname || href === pathname.replace(/\/$/, '');
+const normalizedHref = typeof href === 'string' ? href.replace(/\/$/, '') || '/' : '';
+const normalizedPath = pathname.replace(/\/$/, '') || '/';
+const isActive = normalizedHref === '/'
+	? normalizedPath === '/'
+	: normalizedPath === normalizedHref || normalizedPath.startsWith(`${normalizedHref}/`);
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}>
@@ -17,10 +21,10 @@ const isActive = href === pathname || href === pathname.replace(/\/$/, '');
 		display: inline-block;
 		text-decoration: none;
 		font-size: 0.96rem;
-		font-weight: 600;
+		font-weight: 500;
 		letter-spacing: 0.01em;
 	}
 	a.active {
-		font-weight: 700;
+		font-weight: 600;
 	}
 </style>

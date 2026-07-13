@@ -6,24 +6,28 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-</head>
-
-<body>
-	<Header title={SITE_TITLE} />
-	<main>
-		<h1>
-			Ops! Page not found.
-		</h1>
-		<br>
-		<a href="/">Go back to home</a>
-		<!-- get img from https://bingw.jasonzeng.dev?resolution=UHD&index=random -->
-		<img src="https://bingw.jasonzeng.dev?index=random" alt="random bing wallpaper" loading="lazy" />
-	</main>
-	<Footer/>
-</body>
-
+<html lang="zh-CN">
+	<head><BaseHead title={`404 | ${SITE_TITLE}`} description={SITE_DESCRIPTION} /></head>
+	<body>
+		<Header />
+		<main>
+			<section class="not-found">
+				<p class="error-code">404 / Off route</p>
+				<h1>This page took<br />a different turn.</h1>
+				<p>这里没有你要找的内容。回到首页，或者从 Writing 继续浏览。</p>
+				<div><a class="primary" href="/">Back home</a><a href="/blog">Browse writing</a></div>
+			</section>
+		</main>
+		<Footer />
+	</body>
 </html>
+
+<style>
+	.not-found { display: grid; align-content: center; min-height: min(680px, calc(100vh - 180px)); padding: 3rem 0; }
+	.error-code { margin: 0 0 1rem; color: rgb(var(--accent)); font: 650 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+	.not-found h1 { max-width: 10ch; margin: 0; font-size: clamp(3.5rem, 10vw, 8rem); line-height: .92; letter-spacing: -.075em; }
+	.not-found > p:not(.error-code) { max-width: 42ch; margin: 1.5rem 0 0; color: rgb(var(--gray)); }
+	.not-found > div { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+	.not-found a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 1rem; border: 1px solid rgba(var(--border), .42); border-radius: 999px; color: rgb(var(--gray-dark)); font: 600 .82rem var(--font-display); }
+	.not-found a.primary { border-color: rgb(var(--gray-dark)); background: rgb(var(--gray-dark)); color: rgb(var(--surface-0)); }
+</style>

@@ -9,9 +9,10 @@ import PostNav from '../components/PostNav.astro';
 type Props = CollectionEntry<'blog'>['data'] & {
 	prev?: CollectionEntry<'blog'> | null;
 	next?: CollectionEntry<'blog'> | null;
+	minutesRead?: string;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, prev = null, next = null } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, prev = null, next = null, minutesRead } = Astro.props;
 const pubDateObj = pubDate instanceof Date ? pubDate : new Date(pubDate);
 const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate : new Date(updatedDate)) : undefined;
 ---
@@ -34,50 +35,60 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 		})} />
 		<style>
 			main {
-				width: min(1080px, calc(100% - 2.5rem));
+				width: min(1160px, calc(100% - 2.5rem));
 				margin: 0 auto;
+			}
+			.article-header {
+				max-width: 920px;
+				padding: clamp(1rem, 4vw, 4rem) 0 clamp(2rem, 5vw, 4rem);
+			}
+			.article-header h1 {
+				max-width: 18ch;
+				margin: 0;
+				font-size: clamp(2.6rem, 7vw, 5.6rem);
+				line-height: 1.03;
+				letter-spacing: -0.06em;
+			}
+			.article-description {
+				max-width: 58ch;
+				margin: 1.2rem 0 0;
+				color: rgb(var(--gray));
+				font-size: clamp(1rem, 1.8vw, 1.18rem);
+			}
+			.article-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.45rem 1rem;
+				margin-bottom: 1.1rem;
+				color: rgb(var(--gray));
+				font: 500 0.72rem var(--font-mono);
 			}
 			.hero-image {
 				width: 100%;
+				background: rgb(var(--surface-1));
 			}
 			.hero-image img {
 				display: block;
+				width: 100%;
+				max-height: 680px;
 				margin: 0 auto;
-				border-radius: var(--radius-lg);
-				box-shadow: var(--box-shadow);
+				border-radius: 0;
+				object-fit: contain;
 			}
 			.prose {
-				width: min(760px, calc(100% - 2rem));
-				margin: 1.2rem auto 0;
-				padding: 1.4rem;
-				background: rgba(var(--surface-1), 0.72);
-				border: 1px solid rgba(var(--border), 0.28);
-				border-radius: var(--radius-lg);
-				box-shadow: var(--surface-shadow);
-			}
-			.title {
-				margin-bottom: 1rem;
-				padding: 0.5rem 0 1rem;
-				text-align: center;
-				line-height: 1.2;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				width: min(720px, calc(100% - 2rem));
+				margin: clamp(2.5rem, 7vw, 5rem) auto 0;
+				padding: 0;
 			}
 			.last-updated-on {
-				font-style: italic;
+				display: inline;
 			}
 			@media (max-width: 720px) {
 				main {
-					width: min(1080px, calc(100% - 1.5rem));
+					width: min(1160px, calc(100% - 1.5rem));
 				}
 				.prose {
-					width: calc(100% - 1rem);
-					padding: 1rem;
+					width: 100%;
 				}
 			}
 		</style>
@@ -87,25 +98,19 @@ const updatedDateObj = updatedDate ? (updatedDate instanceof Date ? updatedDate 
 		<Header />
 		<main>
 			<article>
+				<header class="article-header">
+					<div class="article-meta">
+						<FormattedDate date={pubDateObj} />
+						{minutesRead && <span>{minutesRead}</span>}
+						{updatedDateObj && <span class="last-updated-on">Updated <FormattedDate date={updatedDateObj} /></span>}
+					</div>
+					<h1>{title}</h1>
+					<p class="article-description">{description}</p>
+				</header>
 				<div class="hero-image">
 					{heroImage && <img width={510} height={205} src={heroImage} alt={title} loading="eager" fetchpriority="high" />}
 				</div>
 				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDateObj} />
-							{
-								updatedDateObj && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDateObj} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<h4><em>{description}</em></h4>
-						<hr />
-					</div>
 					<slot />
 				</div>
 				<PostNav prev={prev} next={next} />

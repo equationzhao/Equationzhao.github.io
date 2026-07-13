@@ -8,87 +8,44 @@ import { apps } from '../../data/apps';
 
 <!DOCTYPE html>
 <html lang="zh-CN">
-	<head>
-		<BaseHead title={`Apps | ${SITE_TITLE}`} description="Eq 的小工具合集" />
-		<style>
-			.apps-header {
-				text-align: center;
-				margin-bottom: 2rem;
-			}
-			.apps-header h1 {
-				font-size: clamp(1.8rem, 4vw, 2.4rem);
-				margin: 0 0 0.4rem;
-				color: rgb(232, 238, 255);
-			}
-			.apps-header p {
-				color: rgba(var(--gray), 0.9);
-				font-size: 0.95rem;
-				margin: 0;
-			}
-			.apps-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-				gap: 1.2rem;
-				padding: 1.4rem;
-				background: rgba(var(--surface-1), 0.72);
-				border: 1px solid rgba(var(--border), 0.28);
-				border-radius: var(--radius-lg);
-				box-shadow: var(--surface-shadow);
-			}
-			.app-card {
-				display: flex;
-				align-items: flex-start;
-				gap: 1rem;
-				padding: 1.2rem;
-				border-radius: var(--radius-md);
-				background: rgba(var(--surface-0), 0.55);
-				border: 1px solid rgba(var(--border), 0.2);
-				text-decoration: none;
-				color: inherit;
-				transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-			}
-			.app-card:hover {
-				transform: translateY(-2px);
-				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-				border-color: rgba(var(--accent), 0.45);
-			}
-			.app-icon {
-				font-size: 2rem;
-				line-height: 1;
-				flex-shrink: 0;
-			}
-			.app-info h2 {
-				font-size: 1.1rem;
-				margin: 0 0 0.3rem;
-				color: rgb(232, 238, 255);
-			}
-			.app-info p {
-				font-size: 0.85rem;
-				margin: 0;
-				color: rgba(var(--gray), 0.85);
-				line-height: 1.5;
-			}
-		</style>
-	</head>
+	<head><BaseHead title={`Tools | ${SITE_TITLE}`} description="Eq 的小工具合集" /></head>
 	<body>
 		<Header />
 		<main>
-			<div class="apps-header">
-				<h1>Apps</h1>
-				<p>实用小工具，即开即用</p>
-			</div>
-			<div class="apps-grid">
-				{apps.map(app => (
-					<a class="app-card" href={app.href} rel={app.external ? 'noopener noreferrer' : 'prefetch-intent'} target={app.external ? '_blank' : undefined}>
-						<span class="app-icon">{app.icon}</span>
-						<div class="app-info">
-							<h2>{app.title}</h2>
-							<p>{app.description}</p>
-						</div>
+			<header class="tools-hero">
+				<p class="eyebrow">Tools</p>
+				<h1>Small instruments<br />for real questions.</h1>
+				<p>骑行模型、功率计算，以及一些因为自己需要而做出来的工具。</p>
+			</header>
+			<section class="app-list" aria-label="Tools">
+				{apps.map((app, index) => (
+					<a href={app.href} rel={app.external ? 'noopener noreferrer' : 'prefetch-intent'} target={app.external ? '_blank' : undefined}>
+						<span class="app-index">{String(index + 1).padStart(2, '0')}</span>
+						<span class="app-icon" aria-hidden="true">{app.icon}</span>
+						<span class="app-copy"><strong>{app.title}</strong><small>{app.description}</small></span>
+						<span class="app-arrow" aria-hidden="true">↗</span>
 					</a>
 				))}
-			</div>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.tools-hero { max-width: 900px; padding: clamp(2rem, 6vw, 5rem) 0 clamp(4rem, 9vw, 8rem); }
+	.tools-hero h1 { margin: 0; font-size: clamp(3rem, 8vw, 6.4rem); line-height: .98; letter-spacing: -.065em; }
+	.tools-hero > p:last-child { max-width: 48ch; margin: 1.5rem 0 0; color: rgb(var(--gray)); }
+	.app-list { border-top: 1px solid rgba(var(--border), .38); }
+	.app-list a { display: grid; grid-template-columns: 50px 44px minmax(0, 1fr) auto; gap: 1rem; align-items: start; min-height: 118px; padding: 1.35rem 0; border-bottom: 1px solid rgba(var(--border), .32); color: inherit; text-decoration: none; }
+	.app-list a:hover { background: rgba(var(--accent), .05); }
+	.app-index { color: rgb(var(--gray)); font: 500 .7rem var(--font-mono); }
+	.app-icon { font-size: 1.35rem; }
+	.app-copy strong, .app-copy small { display: block; }
+	.app-copy strong { font: 650 clamp(1.25rem, 3vw, 1.8rem) var(--font-display); letter-spacing: -.03em; }
+	.app-copy small { max-width: 68ch; margin-top: .45rem; color: rgb(var(--gray)); font-size: .86rem; line-height: 1.5; }
+	.app-arrow { color: rgb(var(--accent)); font-size: 1.25rem; }
+	@media (max-width: 560px) {
+		.app-list a { grid-template-columns: 32px 32px minmax(0, 1fr) auto; gap: .65rem; }
+	}
+</style>

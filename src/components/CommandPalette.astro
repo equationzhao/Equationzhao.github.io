@@ -148,6 +148,10 @@ const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
 	(function () {
 		window.__eqCommandItems = commandItems;
 
+		function isDesktop() {
+			return !window.matchMedia('(max-width: 720px)').matches;
+		}
+
 		function normalize(value) {
 			return String(value || '').trim().toLowerCase();
 		}
@@ -314,6 +318,7 @@ const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
 		}
 
 		function openPalette() {
+			if (!isDesktop()) return;
 			window.__eqInitCommandPalette();
 			var root = document.querySelector('[data-command-palette-root]');
 			var dialog = root && root.querySelector('[data-command-dialog]');
@@ -428,30 +433,33 @@ const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
 </script>
 
 <style>
-	.command-palette-root {
-		position: relative;
-	}
-
 	.command-trigger {
-		position: static;
+		position: fixed;
+		top: 46vh;
+		right: 0;
+		z-index: 30;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 44px;
-		height: 44px;
+		width: 42px;
+		height: 58px;
 		border: 1px solid rgba(var(--border), 0.32);
-		border-radius: 999px;
-		background: rgba(var(--surface-1), 0.7);
+		border-right: 0;
+		border-radius: 8px 0 0 8px;
+		background: rgba(var(--surface-1), 0.82);
 		color: rgb(var(--gray));
+		box-shadow: -10px 10px 28px rgba(2, 5, 14, 0.32);
+		backdrop-filter: blur(14px);
 		cursor: pointer;
-		transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+		transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 	}
 
 	.command-trigger:hover,
 	.command-trigger:focus-visible {
 		color: rgb(var(--accent));
 		border-color: rgba(var(--accent), 0.55);
-		background: rgba(var(--accent), 0.08);
+		transform: translateX(-2px);
+		outline: none;
 	}
 
 	.command-trigger svg {
@@ -598,7 +606,7 @@ const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
 	}
 
 	:global(.command-result-title) {
-		color: rgb(var(--gray-dark));
+		color: rgb(237, 243, 255);
 		font-size: 0.95rem;
 		font-weight: 700;
 	}
@@ -616,9 +624,9 @@ const commandItems = [...postItems, ...appItems, ...pageItems, ...actionItems];
 	}
 
 	@media (max-width: 720px) {
+		.command-trigger,
 		.command-dialog {
-			width: calc(100vw - 1rem);
-			max-height: calc(100dvh - 1rem);
+			display: none;
 		}
 	}
 </style>

@@ -169,22 +169,6 @@ import { SITE_TITLE } from '../../consts';
 					font-size: 1.8rem;
 				}
 			}
-
-			/* Editorial tool surface */
-			main { width: min(820px, calc(100% - 2.5rem)); }
-			.back-link { min-height: 44px; margin-bottom: 1rem; color: rgb(var(--gray)); font: 500 .78rem var(--font-display); }
-			.cp-container { max-width: none; padding: clamp(1.4rem, 5vw, 3rem) 0; border: 0; border-block: 1px solid rgba(var(--border), .38); border-radius: 0; background: transparent; box-shadow: none; }
-			.cp-container h1 { margin: 0; color: rgb(var(--gray-dark)); font-size: clamp(2.5rem, 7vw, 4.5rem); text-align: left; letter-spacing: -.055em; }
-			.subtitle { margin: .55rem 0 3rem; color: rgb(var(--gray)); text-align: left; }
-			input[type='number'] { min-height: 44px; border-color: rgba(var(--border), .42); background: rgb(var(--surface-1)); }
-			input[type='range'] { min-height: 44px; background: transparent; }
-			.results { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.5rem; padding: 1.4rem; border: 1px solid rgba(var(--accent), .38); border-radius: var(--radius-md); background: rgba(var(--accent), .1); backdrop-filter: none; }
-			.result-item { margin: 0; color: rgb(var(--gray-dark)); }
-			.result-label, .result-unit { color: rgb(var(--gray)); opacity: 1; }
-			.result-value { color: rgb(var(--accent)); font-family: var(--font-mono); font-weight: 600; }
-			.formula-info { padding: 1.2rem 0 0; border-top: 1px solid rgba(var(--border), .3); border-radius: 0; background: transparent; }
-			.formula { background: rgb(var(--surface-1)); font-family: var(--font-mono); }
-			@media (max-width: 600px) { main { width: min(100% - 1.5rem, 820px); } .results { grid-template-columns: 1fr; } }
 		</style>
 	</head>
 	<body>

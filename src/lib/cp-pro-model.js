@@ -412,13 +412,13 @@ export function analyzeCpPro({ points, weightKg = null, detectOutliers = true })
 	const status = reasons.length === 0 ? 'ok' : 'low-confidence';
 	const numericWeight = Number(weightKg);
 	const hasFiveMinuteAnchor = acceptedPoints.some((point) => point.time >= 240 && point.time <= 360);
-	const vo2Estimate = status === 'ok' && Number.isFinite(numericWeight) && numericWeight > 0 && hasFiveMinuteAnchor
+	const vo2Estimate = Number.isFinite(numericWeight) && numericWeight > 0 && hasFiveMinuteAnchor
 		? 16.6 + 8.87 * (predict(model, 300) / numericWeight)
 		: null;
 	return {
 		model: { ...model, intervals },
 		curve: buildCurve(acceptedPoints, model, bootstrapSamples),
-		zones: status === 'ok' ? buildZones(model.cp) : [],
+		zones: buildZones(model.cp),
 		vo2Estimate,
 		acceptedPoints,
 		outliers: [...normalized.outliers, ...fitted.outliers],

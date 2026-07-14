@@ -157,7 +157,7 @@ test('marks a bootstrap interval near parameter constraints as low-confidence', 
 
 	assert.equal(analysis.diagnostics.status, 'low-confidence');
 	assert.ok(analysis.diagnostics.reasons.some((reason) => reason.includes('parameter interval')));
-	assert.deepEqual(analysis.zones, []);
+	assert.equal(analysis.zones.length, 7);
 });
 
 test('retains and refits residual-only outliers for ordinary point counts', () => {
@@ -186,7 +186,7 @@ test('does not silently remove non-monotonic unique points when outlier detectio
 	assert.deepEqual(analysis.outliers, []);
 });
 
-test('keeps at least three points and reports low confidence for sparse input', () => {
+test('keeps zones and eligible VO2 estimate visible for sparse low-confidence input', () => {
 	const points = syntheticPoints(20, [5, 20, 60, 300, 1200]).map((point, index) => (
 		index === 3 ? { ...point, power: point.power * 0.8 } : point
 	));
@@ -194,8 +194,8 @@ test('keeps at least three points and reports low confidence for sparse input', 
 
 	assert.ok(analysis.acceptedPoints.length >= 3);
 	assert.equal(analysis.diagnostics.status, 'low-confidence');
-	assert.deepEqual(analysis.zones, []);
-	assert.equal(analysis.vo2Estimate, null);
+	assert.equal(analysis.zones.length, 7);
+	assert.ok(analysis.vo2Estimate);
 });
 
 test('keeps the highest duplicate duration and preserves long chart durations', () => {
@@ -210,12 +210,15 @@ test('keeps the highest duplicate duration and preserves long chart durations', 
 	assert.equal(analysis.curve.best.at(-1).time, 7200);
 });
 
-test('VO2max estimate requires trusted coverage, valid weight, and a 240–360s point', () => {
+test('VO2max estimate requires valid weight and a 240–360s point, not high confidence', () => {
 	const trusted = analyzeCpPro({ points: exactMortonPoints, weightKg: 70, detectOutliers: false });
+	const lowConfidence = analyzeCpPro({ points: exactMortonPoints.slice(0, 5), weightKg: 70, detectOutliers: false });
 	const noWeight = analyzeCpPro({ points: exactMortonPoints, detectOutliers: false });
 	const noAnchor = analyzeCpPro({ points: syntheticPoints(20, [5, 20, 60, 180, 600, 1200]), weightKg: 70, detectOutliers: false });
 
 	assert.ok(trusted.vo2Estimate);
+	assert.equal(lowConfidence.diagnostics.status, 'low-confidence');
+	assert.ok(lowConfidence.vo2Estimate);
 	assert.equal(noWeight.vo2Estimate, null);
 	assert.equal(noAnchor.vo2Estimate, null);
 });

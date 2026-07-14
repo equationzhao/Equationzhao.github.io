@@ -116,6 +116,22 @@ import { SITE_TITLE } from '../../consts';
 				border-radius: 999px;
 				letter-spacing: 0.04em;
 			}
+			.confidence-tooltip {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				margin-left: 0.35rem;
+				color: #f1c40f;
+				font-size: 0.78rem;
+				padding: 0;
+				border: 0;
+				background: transparent;
+			}
+			.confidence-tooltip[hidden] { display: none; }
+			.confidence-tooltip::after {
+				top: calc(100% + 8px);
+				bottom: auto;
+			}
 
 			/* ---- Hero metrics ---- */
 			.hero-metrics {
@@ -358,19 +374,6 @@ import { SITE_TITLE } from '../../consts';
 				font: 400 0.7rem/1.5 'Instrument Sans', sans-serif;
 				color: rgba(var(--gray-light), 0.68);
 			}
-			.confidence-note {
-				margin-bottom: 0.8rem;
-				padding: 0.65rem 0.75rem;
-				border: 1px solid rgba(var(--border), 0.18);
-				border-radius: 8px;
-				font: 400 0.75rem/1.45 'Instrument Sans', sans-serif;
-				color: rgba(var(--gray), 0.82);
-				background: rgba(var(--surface-0), 0.32);
-			}
-			.confidence-note.ok { border-color: rgba(46, 204, 113, 0.28); }
-			.confidence-note.low { border-color: rgba(241, 196, 15, 0.38); }
-			.confidence-note strong { color: rgb(var(--gray-dark)); }
-
 			/* ---- Stats ---- */
 			.stats-grid {
 				display: grid;
@@ -425,7 +428,8 @@ import { SITE_TITLE } from '../../consts';
 				z-index: 30;
 				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 			}
-			[data-tip]:hover::after {
+			[data-tip]:hover::after,
+			[data-tip]:focus-visible::after {
 				opacity: 1;
 				transform: translateX(-50%) translateY(0);
 			}
@@ -484,7 +488,7 @@ import { SITE_TITLE } from '../../consts';
 		<main>
 			<div class="pm-top">
 				<a class="back-link" href="/apps" rel="prefetch-intent">&larr; Apps</a>
-				<span class="pm-badge">Morton 3-param &middot; Deterministic fit</span>
+				<span class="pm-badge">Morton 3-param &middot; Deterministic fit <button type="button" id="confidenceTooltip" class="confidence-tooltip" aria-label="Low-confidence fit details" aria-describedby="confidenceTooltipText" hidden>&#9432;</button><span id="confidenceTooltipText" class="sr-only"></span></span>
 			</div>
 
 			<div class="hero-metrics" id="heroMetrics">
@@ -621,6 +625,14 @@ import { SITE_TITLE } from '../../consts';
 		function display(analysis){
 			const m=analysis.model;
 			const w=Number(document.getElementById('weight').value)||0;
+			const reasons=analysis.diagnostics.reasons;
+			const confidenceTooltip=document.getElementById('confidenceTooltip');
+			const isLowConfidence=analysis.diagnostics.status==='low-confidence';
+			confidenceTooltip.hidden=!isLowConfidence;
+			const confidenceMessage=isLowConfidence?`Low-confidence fit: ${reasons.join(' ')}`:'';
+			document.getElementById('confidenceTooltipText').textContent=confidenceMessage;
+			if(isLowConfidence)confidenceTooltip.setAttribute('data-tip',confidenceMessage);
+			else confidenceTooltip.removeAttribute('data-tip');
 			document.getElementById('heroMetrics').classList.add('visible');
 			document.getElementById('hCP').textContent=fv(m.cp);
 			document.getElementById('hW').textContent=fv(m.wPrime);
@@ -630,27 +642,22 @@ import { SITE_TITLE } from '../../consts';
 			document.getElementById('hPmaxi').textContent=intervalText(m.intervals?.pMax);
 			document.getElementById('hVO2').textContent=analysis.vo2Estimate?fv(analysis.vo2Estimate):'--';
 			document.getElementById('hVO2u').textContent=analysis.vo2Estimate?'ml/kg/min':'not available';
-			document.getElementById('hVO2i').textContent=analysis.vo2Estimate?'Estimate from modeled 5-minute power':'Requires a trusted fit, valid weight, and a 240–360s maximal point';
+			document.getElementById('hVO2i').textContent=analysis.vo2Estimate?'Estimate from modeled 5-minute power':'Requires valid weight and a 240–360s maximal point';
 
 			cd={analysis};
 			renderChart();
 
 			const zonesContent=document.getElementById('zonesContent');
-			if(!analysis.zones.length){
-				zonesContent.innerHTML='<div class="confidence-note low">Zones hidden because the fit is low-confidence. Add at least 6 maximal efforts covering ≤60s, 120–480s, and ≥600s.</div>';
-			}else{
-				const maxW=m.cp*1.65;
-				zonesContent.innerHTML=analysis.zones.map(z=>{
-					const left=(z.min/maxW*100).toFixed(1);
-					const visualMax=z.max??maxW;
-					const width=(Math.max(0,visualMax-z.min)/maxW*100).toFixed(1);
-					const range=z.max===null?`>${z.min-1}`:`${z.min}–${z.max}`;
-					return `<div class="zone-row"><span class="zone-name" title="${z.label}">${z.name}</span><div class="zone-bar-track"><div class="zone-bar-fill" style="left:${left}%;width:${width}%;background:${z.color}"></div></div><span class="zone-range">${range}</span></div>`;
-				}).join('');
-			}
+			const maxW=m.cp*1.65;
+			zonesContent.innerHTML=analysis.zones.map(z=>{
+				const left=(z.min/maxW*100).toFixed(1);
+				const visualMax=z.max??maxW;
+				const width=(Math.max(0,visualMax-z.min)/maxW*100).toFixed(1);
+				const range=z.max===null?`>${z.min-1}`:`${z.min}–${z.max}`;
+				return `<div class="zone-row"><span class="zone-name" title="${z.label}">${z.name}</span><div class="zone-bar-track"><div class="zone-bar-fill" style="left:${left}%;width:${width}%;background:${z.color}"></div></div><span class="zone-range">${range}</span></div>`;
+			}).join('');
 
-			const reasons=analysis.diagnostics.reasons;
-			let sh=`<div class="confidence-note ${analysis.diagnostics.status==='ok'?'ok':'low'}"><strong>${analysis.diagnostics.status==='ok'?'Trusted fit':'Low-confidence fit'}</strong>${reasons.length?` · ${reasons.join(' · ')}`:' · Stability checks passed.'}</div><div class="stats-grid">`;
+			let sh='<div class="stats-grid">';
 			sh+=`<div class="stat-item"><span class="stat-label" data-tip="Morton model time offset">Tau</span><span><span class="stat-value">${fv(m.tau)}</span><span class="stat-unit">s${m.intervals?` · 95% ${fv(m.intervals.tau[0])}–${fv(m.intervals.tau[1])}`:''}</span></span></div>`;
 			sh+=`<div class="stat-item"><span class="stat-label" data-tip="Displayed watt-scale error; optimization uses MSRE">RMSE</span><span><span class="stat-value">${fv(m.rmse)}</span><span class="stat-unit">W</span></span></div>`;
 			sh+=`<div class="stat-item"><span class="stat-label" data-tip="Square root of the MSRE objective">Typical relative error</span><span><span class="stat-value">${fv(Math.sqrt(m.msre)*100)}</span><span class="stat-unit">%</span></span></div>`;
@@ -662,11 +669,14 @@ import { SITE_TITLE } from '../../consts';
 		}
 
 		function clearResults(errorMessage=null){
+			const confidenceTooltip=document.getElementById('confidenceTooltip');
+			confidenceTooltip.hidden=true;confidenceTooltip.removeAttribute('data-tip');
+			document.getElementById('confidenceTooltipText').textContent='';
 			document.getElementById('heroMetrics').classList.remove('visible');
 			document.getElementById('chartEmpty').style.display='';
 			document.getElementById('powerChart').style.display='none';
 			document.getElementById('chartFooter').style.display='none';
-			document.getElementById('zonesContent').innerHTML='<div class="chart-empty" style="height:100px">Waiting for a trusted model</div>';
+			document.getElementById('zonesContent').innerHTML='<div class="chart-empty" style="height:100px">Waiting for model</div>';
 			if(ci){ci.destroy();ci=null;}
 			cd=null;
 			sc.innerHTML='';
@@ -724,7 +734,7 @@ import { SITE_TITLE } from '../../consts';
 		document.getElementById('useExample').addEventListener('click',()=>{
 			markInputsChanged();
 			pc.innerHTML='';
-			[{time:5,power:1020},{time:20,power:750},{time:60,power:525},{time:180,power:390},{time:300,power:356.25},{time:600,power:329.03},{time:1200,power:314.75}].forEach(p=>{const r=mkRow();r.querySelector('.time-input').value=p.time;r.querySelector('.power-input').value=p.power;pc.appendChild(r);});
+			[{time:10,power:902},{time:30,power:689},{time:60,power:503},{time:180,power:390},{time:300,power:359},{time:600,power:325},{time:1200,power:310}].forEach(p=>{const r=mkRow();r.querySelector('.time-input').value=p.time;r.querySelector('.power-input').value=p.power;pc.appendChild(r);});
 			document.getElementById('weight').value=70;updRm();save();
 		});
 

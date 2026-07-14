@@ -151,8 +151,9 @@ import { SITE_TITLE } from '../../consts';
 				border-radius: var(--radius-md);
 				text-align: center;
 				position: relative;
-				overflow: hidden;
+				overflow: visible;
 			}
+			.metric-card:hover { z-index: 40; }
 			.metric-card::before {
 				content: '';
 				position: absolute;
